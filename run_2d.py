@@ -104,7 +104,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
             else:
                 print("Initialize particle trajectories with linear interpolant at the first epoch")
                 # X_bar: (len(timesteps), data_size, dim)
-                X_bar = initialize_linear_interpolant(p_training, q_training, timesteps)
+                X_bar = initialize_linear_interpolant(p_training, timesteps)
                 # initial Xbar is just linear interpolant of p and q based on time steps
 
             classifier_optimization_pbar = tqdm(total=config.initial_classifier_training_step, 
@@ -150,6 +150,9 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
         # Particle optimization
         ## before particle optimization, generate X_bar through initialization or solving ODE first
         ## and then batchify them, since batchfiy > solving ODE is more time consuming
+
+        torch.save(X_bar.transpose(1,0), os.path.join(epoch_saving_dir, 
+                                                      'pre_optimized_particles_trajectories_e{}.pt'.format(i+1)))
 
         # Prepare trajectory variables
         particle_0 = X_bar[0].clone().detach().unsqueeze(0).to(device) # (1, data_size, dim)
@@ -348,6 +351,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                               "path_energy" : path_energy}
             
         save_data(config.saving_dir + "loss_record.pkl", loss_record)
+        torch.save(X_bar, os.path.join(epoch_saving_dir, 'optimized_particles_trajectories_e{}.pt'.format(i+1)))
         torch.save(classifier.state_dict(), os.path.join(epoch_saving_dir, 'classifier_e{}.pt'.format(i+1)))
         torch.save(velocity_field.state_dict(), os.path.join(epoch_saving_dir, 'velocity_field_e{}.pt'.format(i+1)))
     

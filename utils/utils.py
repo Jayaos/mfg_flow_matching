@@ -238,9 +238,49 @@ def compute_fid_endpoint(vae_model,
     return test_fid
 
 
-def compute_l2uvp_cos_forward(benchmark, velocity_field, num_timesteps, odeint_batch_size, ode_solver, size, device):
+def compute_l2uvp_cos_forward_particle(p_trajectory, benchmark, device):
+    p = p_trajectory[0].to(device)
+    p_1 = p_trajectory[-1].to(device)
+    p.requires_grad_(True)
+    q = benchmark.map_fwd(p, nograd=True)
 
-    p = benchmark.input_sampler.sample(size)
+    with torch.no_grad():
+        L2_UVP_fwd = 100 * (((q - p_1) ** 2).sum(dim=1).mean() / benchmark.output_sampler.var).item()
+        cos_fwd = (((q - p) * (p_1 - p)).sum(dim=1).mean() / \
+                (np.sqrt((2 * benchmark.cost) * ((p_1 - p) ** 2).sum(dim=1).mean().item()))).item()
+    
+    return L2_UVP_fwd, cos_fwd, (p,q,p_1)
+
+
+def compute_l2uvp_cos_forward_particle_image(p_trajectory, benchmark, device):
+    """
+
+    :param p_trajectory: (len(timesteps), data_size, 3, 64, 64)
+    :param benchmark: Description
+    :param device: Description
+    """
+    p = p_trajectory[0, :, :, :, :].to(device) # (data_size, 3, 64, 64)
+    p_1 = p_trajectory[-1, :, :, :, :].to(device) # (data_size, 3, 64, 64)
+
+    batch_size = p.shape[0]
+    p = p.reshape((batch_size, -1)) # (data_size, 3*64*64)
+    p_1 = p_1.reshape((batch_size, -1)) # (data_size, 3*64*64)
+
+    p.requires_grad_(True)
+    q = benchmark.map_fwd(p, nograd=True)
+
+    with torch.no_grad():
+        L2_UVP_fwd = 100 * (((q - p_1) ** 2).sum(dim=1).mean() / benchmark.output_sampler.var).item()
+        cos_fwd = (((q - p) * (p_1 - p)).sum(dim=1).mean() / \
+                (np.sqrt((2 * benchmark.cost) * ((p_1 - p) ** 2).sum(dim=1).mean().item()))).item()
+
+    return L2_UVP_fwd, cos_fwd, (p,q,p_1)
+
+
+def compute_l2uvp_cos_forward_input(p, benchmark, velocity_field, num_timesteps, odeint_batch_size, ode_solver, device):
+
+    p = p.to(device)
+    p.requires_grad_(True)
     q = benchmark.map_fwd(p, nograd=True)
 
     timesteps = torch.linspace(0, 1, num_timesteps)
@@ -248,11 +288,11 @@ def compute_l2uvp_cos_forward(benchmark, velocity_field, num_timesteps, odeint_b
     with torch.no_grad():  # Don't track gradients for ODE solving
         if odeint_batch_size:
             X_trajectory = batched_odeint(velocity_field, 
-                                   p, 
-                                    timesteps,
-                                    odeint_batch_size,
-                                    ode_solver,
-                                    device=device)
+                                          p, 
+                                          timesteps,
+                                          odeint_batch_size,
+                                          ode_solver,
+                                          device=device)
         else:
             X_trajectory = odeint(velocity_field, p, timesteps, method=ode_solver) 
         # (len(timesteps), training_size, dims, ...)
@@ -265,7 +305,106 @@ def compute_l2uvp_cos_forward(benchmark, velocity_field, num_timesteps, odeint_b
         cos_fwd = (((q - p) * (p_1 - p)).sum(dim=1).mean() / \
                 (np.sqrt((2 * benchmark.cost) * ((p_1 - p) ** 2).sum(dim=1).mean().item()))).item()
     
-    return L2_UVP_fwd, cos_fwd
+    return L2_UVP_fwd, cos_fwd, (p,q,p_1)
+
+
+def compute_l2uvp_cos_forward_vf_input_image(p, benchmark, velocity_field, num_timesteps, odeint_batch_size, ode_solver, device):
+    """
+    compute $L^2 UVP$ and cos similarity of the solution solved by the given velocity field on the given input
+    p: (batch_size, 3, 64, 64)
+    """
+
+    batch_size = p.shape[0]
+    p = p.to(device)
+    timesteps = torch.linspace(0, 1, num_timesteps)
+
+    with torch.no_grad():  # Don't track gradients for ODE solving
+        if odeint_batch_size:
+            X_trajectory = batched_odeint(velocity_field, 
+                                          p, 
+                                          timesteps,
+                                          odeint_batch_size,
+                                          ode_solver,
+                                          device=device)
+        else:
+            X_trajectory = odeint(velocity_field, p, timesteps, method=ode_solver) 
+        # (len(timesteps), training_size, dims, ...)
+
+    p = p.reshape((batch_size, -1)) # (size, 3*64*64)
+    p.requires_grad_(True)
+    q = benchmark.map_fwd(p, nograd=True)
+
+    p_1 = X_trajectory[-1, :, :, :, :]
+    p_1 = p_1.to(device)
+    p_1 = p_1.reshape((batch_size, -1)) # (size, 3*64*64)
+
+    with torch.no_grad():
+        L2_UVP_fwd = 100 * (((q - p_1) ** 2).sum(dim=1).mean() / benchmark.output_sampler.var).item()
+        cos_fwd = (((q - p) * (p_1 - p)).sum(dim=1).mean() / \
+                (np.sqrt((2 * benchmark.cost) * ((p_1 - p) ** 2).sum(dim=1).mean().item()))).item()
+    
+    return L2_UVP_fwd, cos_fwd, (p,q,p_1)
+
+
+def compute_l2uvp_cos_forward(benchmark, velocity_field, num_timesteps, odeint_batch_size, ode_solver, size, device):
+
+    p = benchmark.input_sampler.sample(size)
+    p.requires_grad_(True)
+    q = benchmark.map_fwd(p, nograd=True)
+    timesteps = torch.linspace(0, 1, num_timesteps)
+
+    with torch.no_grad():  # Don't track gradients for ODE solving
+        if odeint_batch_size:
+            X_trajectory = batched_odeint(velocity_field, 
+                                   p, 
+                                    timesteps,
+                                    odeint_batch_size,
+                                    ode_solver,
+                                    device=device)
+        else:
+            X_trajectory = odeint(velocity_field, p, timesteps, method=ode_solver) 
+        # (len(timesteps), size, dims, ...)
+
+    p_1 = X_trajectory[-1] # (size, dims, ...)
+    p_1 = p_1.to(device)
+
+    with torch.no_grad():
+        L2_UVP_fwd = 100 * (((q - p_1) ** 2).sum(dim=1).mean() / benchmark.output_sampler.var).item()
+        cos_fwd = (((q - p) * (p_1 - p)).sum(dim=1).mean() / \
+                (np.sqrt((2 * benchmark.cost) * ((p_1 - p) ** 2).sum(dim=1).mean().item()))).item()
+    
+    return L2_UVP_fwd, cos_fwd, (p,q,p_1)
+
+
+def compute_l2uvp_cos_forward_image(benchmark, velocity_field, num_timesteps, odeint_batch_size, ode_solver, size, device):
+
+    p = benchmark.input_sampler.sample(size) # (size, 3*64*64)
+    p.requires_grad_(True)
+    q = benchmark.map_fwd(p, nograd=True)
+    timesteps = torch.linspace(0, 1, num_timesteps)
+
+    with torch.no_grad():  # Don't track gradients for ODE solving
+        if odeint_batch_size:
+            X_trajectory = batched_odeint(velocity_field, 
+                                          p.reshape(size, 3, 64, 64), 
+                                          timesteps,
+                                          odeint_batch_size,
+                                          ode_solver,
+                                          device=device)
+        else:
+            X_trajectory = odeint(velocity_field, p.reshape(size, 3, 64, 64).to(device), timesteps.to(device), method=ode_solver) 
+        # (len(timesteps), size, 3, 64, 64)
+
+    p_1 = X_trajectory[-1, :, :, :, :] # (size, 3, 64, 64)
+    p_1 = p_1.flatten(start_dim=1, end_dim=3).to(device)
+
+    with torch.no_grad():
+        L2_UVP_fwd = 100 * (((q - p_1) ** 2).sum(dim=1).mean() / benchmark.output_sampler.var).item()
+        cos_fwd = (((q - p) * (p_1 - p)).sum(dim=1).mean() / \
+                (np.sqrt((2 * benchmark.cost) * ((p_1 - p) ** 2).sum(dim=1).mean().item()))).item()
+    
+    return L2_UVP_fwd, cos_fwd, (p,q,p_1)
+
 
 @torch.no_grad()
 def compute_path_energy(velocity_field, x_init, num_timesteps, odeint_batch_size, ode_solver, device):

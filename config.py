@@ -72,7 +72,6 @@ class MFGFlowHDGaussianConfig():
                  classifier_initial_training_step,
                  classifier_intermediate_training_frequency,
                  classifier_intermediate_training_step,
-
                  velocity_field_hidden_dims,
                  velocity_field_layer_type,
                  velocity_field_activation,
@@ -81,20 +80,17 @@ class MFGFlowHDGaussianConfig():
                  velocity_field_initialization,
                  velocity_field_initialization_training_step,
                  velocity_field_training_step,
-                 
-                 particle_optimization_training_step,
+                 particle_optimization_training_epoch,
                  particle_optimization_learning_rate,
                  particle_optimization_batch_size,
                  kinetic_loss_weight,
                  classifier_loss_weight,
-                 
                  epochs,
                  epoch_data_size,
                  ode_solver,
                  odeint_batch_size,
                  num_timesteps,
-                 checkpoint,
-                 saving_dir
+                 saving_dir,
                  ):
         
         self.dim = dim
@@ -102,20 +98,18 @@ class MFGFlowHDGaussianConfig():
         self.classifier_activation = classifier_activation
         self.classifier_learning_rate = classifier_learning_rate
         self.classifier_training_batch_size = classifier_training_batch_size
-        self.initial_classifier_training_step = initial_classifier_training_step
+        self.classifier_initial_training_step = classifier_initial_training_step
         self.classifier_intermediate_training_frequency = classifier_intermediate_training_frequency
-        self.intermediate_classifier_training_step = intermediate_classifier_training_step
+        self.classifier_intermediate_training_step = classifier_intermediate_training_step
         self.velocity_field_hidden_dims = velocity_field_hidden_dims
         self.velocity_field_layer_type = velocity_field_layer_type
         self.velocity_field_activation = velocity_field_activation
         self.velocity_field_learning_rate = velocity_field_learning_rate
         self.velocity_field_training_batch_size = velocity_field_training_batch_size
         self.velocity_field_initialization = velocity_field_initialization
-        self.velocity_field_initialization_training_step = velocity_field_initialization_training_step
-        self.initial_velocity_field_training_step = initial_velocity_field_training_step
+        self.velocity_field_initialization_training_step = velocity_field_initialization_training_step        
         self.velocity_field_training_step = velocity_field_training_step
-        self.initial_particle_optimization_epoch = initial_particle_optimization_epoch
-        self.particle_optimization_epoch = particle_optimization_epoch
+        self.particle_optimization_training_epoch = particle_optimization_training_epoch
         self.particle_optimization_learning_rate = particle_optimization_learning_rate
         self.particle_optimization_batch_size = particle_optimization_batch_size
         self.kinetic_loss_weight = kinetic_loss_weight
@@ -125,6 +119,69 @@ class MFGFlowHDGaussianConfig():
         self.ode_solver = ode_solver
         self.odeint_batch_size = odeint_batch_size
         self.num_timesteps = num_timesteps
+        self.saving_dir = saving_dir
+
+
+class MFGFlowOTCelebAConfig():
+
+    def __init__(self, 
+                 classifier_learning_rate,
+                 classifier_training_batch_size,
+                 classifier_initial_training_step,
+                 classifier_intermediate_training_frequency,
+                 classifier_intermediate_training_step,
+                 velocity_field_encoding_dims,
+                 velocity_field_decoding_dims,
+                 velocity_field_kernel_sizes,
+                 velocity_field_strides,
+                 velocity_field_initialization,
+                 velocity_field_initialization_training_step,
+                 velocity_field_learning_rate,
+                 velocity_field_training_batch_size,
+                 initial_velocity_field_training_step,
+                 velocity_field_training_step,
+                 initial_particle_optimization_epoch,
+                 particle_optimization_epoch,
+                 particle_optimization_learning_rate,
+                 particle_optimization_batch_size,
+                 kinetic_loss_weight,
+                 classifier_loss_weight,
+                 epochs,
+                 epoch_training_size,
+                 ode_solver,
+                 odeint_batch_size,
+                 num_timesteps,
+                 which_benchmark,
+                 saving_dir,
+                 ):
+
+        self.classifier_learning_rate = classifier_learning_rate
+        self.classifier_training_batch_size = classifier_training_batch_size
+        self.classifier_initial_training_step = classifier_initial_training_step
+        self.classifier_intermediate_training_frequency = classifier_intermediate_training_frequency
+        self.classifier_intermediate_training_step = classifier_intermediate_training_step
+        self.velocity_field_encoding_dims = velocity_field_encoding_dims
+        self.velocity_field_decoding_dims = velocity_field_decoding_dims
+        self.velocity_field_kernel_sizes = velocity_field_kernel_sizes
+        self.velocity_field_strides = velocity_field_strides
+        self.velocity_field_initialization = velocity_field_initialization
+        self.velocity_field_initialization_training_step = velocity_field_initialization_training_step
+        self.velocity_field_learning_rate = velocity_field_learning_rate
+        self.velocity_field_training_batch_size = velocity_field_training_batch_size
+        self.initial_velocity_field_training_step = initial_velocity_field_training_step
+        self.velocity_field_training_step = velocity_field_training_step
+        self.initial_particle_optimization_epoch = initial_particle_optimization_epoch
+        self.particle_optimization_epoch = particle_optimization_epoch
+        self.particle_optimization_learning_rate = particle_optimization_learning_rate
+        self.particle_optimization_batch_size = particle_optimization_batch_size
+        self.kinetic_loss_weight = kinetic_loss_weight
+        self.classifier_loss_weight = classifier_loss_weight
+        self.epochs = epochs
+        self.epoch_training_size = epoch_training_size
+        self.ode_solver = ode_solver
+        self.odeint_batch_size = odeint_batch_size
+        self.num_timesteps = num_timesteps
+        self.which_benchmark = which_benchmark
         self.saving_dir = saving_dir
 
 
@@ -322,3 +379,36 @@ class BaselineHDGaussianConfig():
         self.saving_dir = saving_dir
 
 
+class BaselineOTCelebAConfig():
+
+    def __init__(self, 
+                 baseline,
+                 velocity_field_encoding_dims,
+                 velocity_field_decoding_dims,
+                 velocity_field_kernel_sizes,
+                 velocity_field_strides,
+                 learning_rate,
+                 training_batch_size,
+                 max_training_step,
+                 ode_solver,
+                 odeint_batch_size,
+                 num_timesteps,
+                 checkpoint,
+                 which_benchmark,
+                 saving_dir,
+                 ):
+
+        self.baseline = baseline
+        self.velocity_field_encoding_dims = velocity_field_encoding_dims
+        self.velocity_field_decoding_dims = velocity_field_decoding_dims
+        self.velocity_field_kernel_sizes = velocity_field_kernel_sizes
+        self.velocity_field_strides = velocity_field_strides
+        self.learning_rate = learning_rate
+        self.training_batch_size = training_batch_size
+        self.max_training_step = max_training_step
+        self.ode_solver = ode_solver
+        self.odeint_batch_size = odeint_batch_size
+        self.num_timesteps = num_timesteps
+        self.which_benchmark = which_benchmark
+        self.checkpoint = checkpoint
+        self.saving_dir = saving_dir

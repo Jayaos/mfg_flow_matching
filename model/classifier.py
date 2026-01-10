@@ -159,3 +159,113 @@ class UNetClassifier(Classifier):
         h = h.view(n, -1)
         out = self.out_fc(h)
         return out
+    
+
+class ResNetBlock(nn.Module):
+    """
+    ResNet block for discriminator, with optional downsampling and residual scaling.
+
+        out = skip(x) + res_ratio * F(x)
+
+    If downsample=True, both residual and skip paths are avg-pooled.
+    """
+    def __init__(self, in_channels, out_channels,
+                 downsample=False, use_bias=True, res_ratio=0.1):
+        super().__init__()
+        self.downsample = downsample
+        self.res_ratio = res_ratio
+        self.act = nn.LeakyReLU(0.2, inplace=False)
+
+        # Residual branch
+        self.conv1 = nn.Conv2d(in_channels, out_channels, 3,
+                               padding=1, bias=use_bias)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, 3,
+                               padding=1, bias=use_bias)
+
+        # Skip connection: adjust channels and/or resolution if needed
+        if in_channels != out_channels or downsample:
+            self.skip = nn.Conv2d(in_channels, out_channels, 1,
+                                  padding=0, bias=use_bias)
+        else:
+            self.skip = None
+
+        if downsample:
+            self.pool = nn.AvgPool2d(2)  # 64→32→16→8→4
+
+    def forward(self, x):
+        # ----- residual path -----
+        h = self.act(x)
+        h = self.conv1(h)
+        h = self.act(h)
+        h = self.conv2(h)
+
+        if self.downsample:
+            h = self.pool(h)
+
+        # ----- skip path -----
+        if self.skip is not None:
+            x_skip = x
+            if self.downsample:
+                x_skip = self.pool(x_skip)
+            x_skip = self.skip(x_skip)
+        else:
+            x_skip = x if not self.downsample else self.pool(x)
+
+        # residual scaling
+        return x_skip + self.res_ratio * h
+
+
+class ResNetClassifier(Classifier):
+    """
+    ResNet-based discriminator for 3x64x64 images (WGAN-QC style) with residual scaling.
+    """
+    def __init__(self, input_dim=3, use_bias=True,
+                 base_channels=64, max_channels=512, res_ratio=0.1):
+        super().__init__()
+        self.use_bias = use_bias
+        self.base_channels = base_channels
+        self.max_channels = max_channels
+        self.res_ratio = res_ratio
+
+        # Stem conv: 3 -> 64, 64x64 -> 64x64
+        self.conv_in = nn.Conv2d(input_dim, base_channels, 3,
+                                 stride=1, padding=1, bias=use_bias)
+        self.act = nn.LeakyReLU(0.2, inplace=False)
+
+        # Channels follow the table
+        c1 = base_channels                       # 64
+        c2 = min(2 * base_channels, max_channels)  # 128
+        c3 = min(4 * base_channels, max_channels)  # 256
+        c4 = max_channels                          # 512
+        c5 = max_channels                          # 512
+
+        self.block1 = ResNetBlock(c1, c2, downsample=True,
+                                use_bias=use_bias, res_ratio=res_ratio)
+        self.block2 = ResNetBlock(c2, c3, downsample=True,
+                                use_bias=use_bias, res_ratio=res_ratio)
+        self.block3 = ResNetBlock(c3, c4, downsample=True,
+                                use_bias=use_bias, res_ratio=res_ratio)
+        self.block4 = ResNetBlock(c4, c4, downsample=True,
+                                use_bias=use_bias, res_ratio=res_ratio)
+        self.block5 = ResNetBlock(c4, c5, downsample=False,
+                                use_bias=use_bias, res_ratio=res_ratio)
+
+        # Final linear layer: 512 * 4 * 4 -> 1
+        feat_dim = c5 * 4 * 4
+        self.out_fc = nn.Linear(feat_dim, 1)
+
+    def forward(self, x):
+        n = x.size(0)
+
+        h = self.conv_in(x)
+        h = self.act(h)
+
+        h = self.block1(h)
+        h = self.block2(h)
+        h = self.block3(h)
+        h = self.block4(h)
+        h = self.block5(h)
+
+        h = h.view(n, -1)
+        out = self.out_fc(h)
+        return out
