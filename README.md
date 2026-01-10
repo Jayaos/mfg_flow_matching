@@ -1,6 +1,10 @@
 
 # Experiment Guide
 
+Implemented on
+python version: 3.9.21
+CUDA: 12.8
+other required packages are contained in requirements.txt
 
 ## High-dimensional Gaussian Benchmark
 
