@@ -444,3 +444,4 @@ def run_flowot_image(config: FlowOTConfig, dataset_config, device):
     torch.save(classifier_pq.state_dict(), os.path.join(config.saving_dir, 'classifier_pq.pt'))
     torch.save(classifier_qp.state_dict(), os.path.join(config.saving_dir, 'classifier_qp.pt'))
     torch.save(velocity_field.state_dict(), os.path.join(config.saving_dir, 'velocity_field.pt'))
+

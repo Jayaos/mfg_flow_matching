@@ -400,6 +400,3 @@ def run_flowot_image(config: FlowOTImageConfig, dataset_config, device):
         torch.save(velocity_field.state_dict(), 
                    os.path.join(config.saving_dir, 'velocity_field_e{}.pt'.format(e+1)))
 
-
-
-

@@ -104,9 +104,14 @@ class MLPVelocityField(VelocityField):
             t = t.unsqueeze(1).transpose(1,0).expand(x.size(0), x.size(1)).unsqueeze(2) # (batch_size, len(timesteps), 1)
             h = self.first_layer(x, t)
         elif x.dim() == 2:
-            # for ODE integration from the beginning point
-            t = t.repeat(x.size(0)).unsqueeze(-1)
-            h = self.first_layer(x, t)
+            if t.dim() == 0:
+                # for ODE integration from the beginning point
+                t = t.repeat(x.size(0)).unsqueeze(-1)
+                h = self.first_layer(x, t)
+            elif x.shape[0] == t.shape[0]:
+                h = self.first_layer(x, t.unsqueeze(1))
+            else:
+                raise NotImplementedError
 
         return self.layers(h)
     

@@ -78,7 +78,7 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
                                                        config.num_timesteps, 
                                                        config.odeint_batch_size,
                                                        config.ode_solver, 
-                                                       4096, 
+                                                       4096*4, 
                                                        device=device)
     
     print("$L^2$ UVP : {} at initialization".format(L2_UVP_fwd))
@@ -112,7 +112,7 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
         initial_classifier_loss_record.append(classifier_loss["loss"].item())
 
     # training
-    for i in tqdm(range(config.epochs)):
+    for e in tqdm(range(config.epochs)):
 
         kinetic_loss_record = []
         classifier_loss_record = []
@@ -142,59 +142,46 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
 
         # evaluation of the particle trajectory before optimization
         L2_UVP_fwd, cos_fwd, _ = compute_l2uvp_cos_forward_particle(X_bar, benchmark, device=device)
-        print("$L^2$ UVP : {} at epoch {} before particle optimization".format(L2_UVP_fwd, i+1))
-        print("cos similarity : {} at epoch {} before particle optimization".format(cos_fwd, i+1))
+        print("$L^2$ UVP : {} at epoch {} before particle optimization".format(L2_UVP_fwd, e+1))
+        print("cos similarity : {} at epoch {} before particle optimization".format(cos_fwd, e+1))
 
-        particle_dataloader = TrajectoryDataLoader(particle_0, 
-                                                   particle_trajectory,
-                                                   batch_size=config.particle_optimization_batch_size, 
-                                                   shuffle=True)
-        particle_dataloader_size = len(particle_dataloader)
-        intermediate_classifier_loss_record = []
+        particle_dataloader = DataLoaderIterator(TrajectoryDataLoader(particle_0, 
+                                                            particle_trajectory,
+                                                            batch_size=config.particle_optimization_batch_size, 
+                                                            shuffle=True))
         
-        for e in tqdm(range(config.particle_optimization_training_epoch)):
+        print("particle optimization")
+        for i in tqdm(range(config.particle_optimization_training_step)):
 
-            kinetic_loss_sum = 0.
-            classifier_loss_sum = 0.
-            particle_optimization_loss_sum = 0.
-
-            for particle_0_batch, particle_trajectory_batch in particle_dataloader:
-
-                particle_optimization_loss = particle_optimization_loss_fn(particle_0_batch, 
+            particle_0_batch, particle_trajectory_batch = next(particle_dataloader) 
+            particle_optimization_loss = particle_optimization_loss_fn(particle_0_batch, 
                                                                         particle_trajectory_batch,
                                                                         classifier,
                                                                         kinetic_loss_weight=config.kinetic_loss_weight)
-                particle_optim.zero_grad()
-                particle_optimization_loss["loss"].backward()
-                particle_optim.step()
-                
-                kinetic_loss_sum += particle_optimization_loss["kinetic_loss"].detach().cpu().item()
-                classifier_loss_sum += particle_optimization_loss["classifier_loss"].detach().cpu().item()
-                particle_optimization_loss_sum += particle_optimization_loss["loss"].detach().cpu().item()
-
-            kinetic_loss_record.append(kinetic_loss_sum / particle_dataloader_size)
-            classifier_loss_record.append(classifier_loss_sum / particle_dataloader_size)
-            particle_optimization_loss_record.append(particle_optimization_loss_sum / particle_dataloader_size)
+            particle_optim.zero_grad()
+            particle_optimization_loss["loss"].backward()
+            particle_optim.step()
+            kinetic_loss_record.append(particle_optimization_loss["kinetic_loss"].detach().cpu().item())
+            classifier_loss_record.append(particle_optimization_loss["classifier_loss"].detach().cpu().item())
+            particle_optimization_loss_record.append(particle_optimization_loss["loss"].detach().cpu().item())
 
             # Update classifier every frequency
-            if (e+1) % config.classifier_intermediate_training_frequency == 0:
-
-                print("intermediate classifier update")
+            if (i+1) % config.classifier_intermediate_training_frequency == 0:
                 p1_batch = particle_trajectory[-1, :, :].clone().detach() # (data_size, dim)
+                q_batch = benchmark.output_sampler.sample(config.epoch_data_size).to("cpu")
                 intermediate_classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p1_batch, q_batch), 
-                                                                    batch_size=config.classifier_training_batch_size, 
-                                                                    shuffle=True))
-                for x_p, x_q in intermediate_classifier_dataloader:
+                                                                                   batch_size=config.classifier_training_batch_size, 
+                                                                                   shuffle=True))
+                
+                for _ in tqdm(range(config.classifier_intermediate_training_step)):
+                    x_p, x_q = next(intermediate_classifier_dataloader)
                     x_p = x_p.to(device)
                     x_q = x_q.to(device)
-                    if intermediate_classifier_dataloader.step <= config.classifier_intermediate_training_step:
-                        classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
-                        classifier_optim.zero_grad()
-                        classifier_loss["loss"].backward()
-                        classifier_optim.step()
-                        intermediate_classifier_loss_record.append(classifier_loss["loss"].item())
-                    else:
-                        break
+                    classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
+                    classifier_optim.zero_grad()
+                    classifier_loss["loss"].backward()
+                    classifier_optim.step()
+                    intermediate_classifier_loss_record.append(classifier_loss["loss"].item())
 
         # updated particle trajectory after particle optimization
         # (len(timesteps), training_size, dim)
@@ -202,13 +189,13 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
 
         # evaluation of the particle trajectory after particle optimization
         L2_UVP_fwd, cos_fwd, _ = compute_l2uvp_cos_forward_particle(X_bar, benchmark, device=device)
-        print("$L^2$ UVP : {} at epoch {} after particle optimization".format(L2_UVP_fwd, i+1))
-        print("cos similarity : {} at epoch {} after particle optimization".format(cos_fwd, i+1))
+        print("$L^2$ UVP : {} at epoch {} after particle optimization".format(L2_UVP_fwd, e+1))
+        print("cos similarity : {} at epoch {} after particle optimization".format(cos_fwd, e+1))
 
         X_bar = X_bar.transpose(1,0) # (training_size, len(timesteps), dim)
         vf_dataloader = DataLoaderIterator(DataLoader(TensorDataset(X_bar), 
-                                            batch_size=config.velocity_field_training_batch_size, 
-                                            shuffle=True))
+                                                      batch_size=config.velocity_field_training_batch_size, 
+                                                      shuffle=True))
         
         # evaluation of the velocity field before training
         L2_UVP_fwd, cos_fwd, _ = compute_l2uvp_cos_forward_input(X_bar[:,0,:], 
@@ -218,10 +205,10 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
                                                                  config.odeint_batch_size,
                                                                  config.ode_solver, 
                                                                  device=device)
-        print("$L^2$ UVP : {} at epoch {} before velocity field training".format(L2_UVP_fwd, i+1))
-        print("cos similarity : {} at epoch {} before velocity field training".format(cos_fwd, i+1))
+        print("$L^2$ UVP : {} at epoch {} before velocity field training".format(L2_UVP_fwd, e+1))
+        print("cos similarity : {} at epoch {} before velocity field training".format(cos_fwd, e+1))
 
-        for k in range(config.velocity_field_training_step):
+        for _ in range(config.velocity_field_training_step):
 
             x_traj_batch = next(vf_dataloader)
             # x_traj_batch is a tuple so x_traj_batch[0] is needed
@@ -235,9 +222,6 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
             vf_optim.step()
             vf_loss_record.append(vf_loss["loss"].detach().cpu().item())
 
-            if vf_dataloader.step == config.velocity_field_training_step:
-                break
-
         # evaluation of the velocity field after training
         L2_UVP_fwd, cos_fwd, _ = compute_l2uvp_cos_forward_input(X_bar[:,0,:], 
                                                                  benchmark, 
@@ -246,8 +230,8 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
                                                                  config.odeint_batch_size,
                                                                  config.ode_solver, 
                                                                  device=device)
-        print("$L^2$ UVP : {} at epoch {} after velocity field training".format(L2_UVP_fwd, i+1))
-        print("cos similarity : {} at epoch {} after velocity field training".format(cos_fwd, i+1))
+        print("$L^2$ UVP : {} at epoch {} after velocity field training".format(L2_UVP_fwd, e+1))
+        print("cos similarity : {} at epoch {} after velocity field training".format(cos_fwd, e+1))
 
         # test evaluation at epoch i
         L2_UVP_fwd, cos_fwd, _ = compute_l2uvp_cos_forward(benchmark, 
@@ -257,11 +241,11 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
                                                             config.ode_solver, 
                                                             2**14, 
                                                             device=device)
-        print("$L^2$ UVP : {} at epoch {}".format(L2_UVP_fwd, i+1))
-        print("cos similarity : {} at epoch {}".format(cos_fwd, i+1))
+        print("$L^2$ UVP : {} at epoch {}".format(L2_UVP_fwd, e+1))
+        print("cos similarity : {} at epoch {}".format(cos_fwd, e+1))
 
-        if i == 0:
-            loss_record[i] = {"kinetic_loss_record" : kinetic_loss_record,
+        if e == 0:
+            loss_record[e] = {"kinetic_loss_record" : kinetic_loss_record,
                               "initial_classifier_loss_record" : initial_classifier_loss_record,
                               "classifier_loss_record" : classifier_loss_record,
                               "intermediate_classifier_loss_record" : intermediate_classifier_loss_record,
@@ -270,7 +254,7 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
                               "L2_UVP_fwd" : L2_UVP_fwd,
                               "cos_fwd" : cos_fwd}
         else:                
-            loss_record[i] = {"kinetic_loss_record" : kinetic_loss_record,
+            loss_record[e] = {"kinetic_loss_record" : kinetic_loss_record,
                               "classifier_loss_record" : classifier_loss_record,
                               "intermediate_classifier_loss_record" : intermediate_classifier_loss_record,
                               "particle_optimization_loss_record" : particle_optimization_loss_record,
@@ -279,9 +263,6 @@ def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
                               "cos_fwd" : cos_fwd}
             
         save_data(config.saving_dir + "loss_record.pkl", loss_record)
-
-    #torch.save(classifier.state_dict(), os.path.join(config.saving_dir, 'classifier_e{}.pt'.format(i+1)))
-    #torch.save(velocity_field.state_dict(), os.path.join(config.saving_dir, 'velocity_field_e{}.pt'.format(i+1)))
     
 
 def run_baselines_hdgaussian(config: BaselineHDGaussianConfig, device):
@@ -456,7 +437,6 @@ def run_mfg_flow_hdgaussian_2dvis(config: MFGFlowHDGaussianConfig, device):
     # initial training of the classifier
     print("initial training of the classifier")
     initial_classifier_loss_record = []
-
     for i in tqdm(range(config.classifier_initial_training_step)):
 
         p_batch = benchmark.input_sampler.sample(config.classifier_training_batch_size)
@@ -481,15 +461,13 @@ def run_mfg_flow_hdgaussian_2dvis(config: MFGFlowHDGaussianConfig, device):
         classifier_optim.step()
         initial_classifier_loss_record.append(classifier_loss["loss"].item())
 
-    kinetic_loss_record = []
-    classifier_loss_record = []
-    particle_optimization_loss_record = []
-    intermediate_classifier_loss_record = []
-    vf_loss_record = []
-    L2_UVP_fwd_record = []
-    cos_fwd_record = []
+    for e in tqdm(range(config.epochs)):
 
-    for i in tqdm(range(config.epochs)):
+        kinetic_loss_record = []
+        classifier_loss_record = []
+        particle_optimization_loss_record = []
+        intermediate_classifier_loss_record = []
+        vf_loss_record = []
 
         p_batch = benchmark.input_sampler.sample(config.epoch_data_size)
         q_batch = benchmark.output_sampler.sample(config.epoch_data_size)
@@ -513,100 +491,87 @@ def run_mfg_flow_hdgaussian_2dvis(config: MFGFlowHDGaussianConfig, device):
 
         # evaluation of the particle trajectory before optimization
         L2_UVP_fwd, cos_fwd, samples_result = compute_l2uvp_cos_forward_particle(X_bar, benchmark, device=device)
-
         plot_2d_gaussian_samples(samples_result, 
                                  os.path.join(config.saving_dir, "sanity_check_plot_e{}_before_po.pdf".format(i+1)))
-
         print("$L^2$ UVP : {} at epoch {} before particle optimization".format(L2_UVP_fwd, i+1))
         print("cos similarity : {} at epoch {} before particle optimization".format(cos_fwd, i+1))
 
-        particle_dataloader = TrajectoryDataLoader(particle_0, 
-                                                    particle_trajectory,
-                                                    batch_size=config.particle_optimization_batch_size, 
-                                                    shuffle=True)
+        particle_dataloader = DataLoaderIterator(TrajectoryDataLoader(particle_0, 
+                                                            particle_trajectory,
+                                                            batch_size=config.particle_optimization_batch_size, 
+                                                            shuffle=True))
         
-        for e in tqdm(range(config.particle_optimization_training_epoch)):
+        print("particle optimization")
+        for i in tqdm(range(config.particle_optimization_training_step)):
 
-            for particle_0_batch, particle_trajectory_batch in particle_dataloader:
-
-                particle_optimization_loss = particle_optimization_loss_fn(particle_0_batch, 
+            particle_0_batch, particle_trajectory_batch = next(particle_dataloader) 
+            particle_optimization_loss = particle_optimization_loss_fn(particle_0_batch, 
                                                                         particle_trajectory_batch,
                                                                         classifier,
                                                                         kinetic_loss_weight=config.kinetic_loss_weight)
-                particle_optim.zero_grad()
-                particle_optimization_loss["loss"].backward()
-                particle_optim.step()
-                kinetic_loss_record.append(particle_optimization_loss["kinetic_loss"].detach().cpu().item())
-                classifier_loss_record.append(particle_optimization_loss["classifier_loss"].detach().cpu().item())
-                particle_optimization_loss_record.append(particle_optimization_loss["loss"].detach().cpu().item())
+            particle_optim.zero_grad()
+            particle_optimization_loss["loss"].backward()
+            particle_optim.step()
+            kinetic_loss_record.append(particle_optimization_loss["kinetic_loss"].detach().cpu().item())
+            classifier_loss_record.append(particle_optimization_loss["classifier_loss"].detach().cpu().item())
+            particle_optimization_loss_record.append(particle_optimization_loss["loss"].detach().cpu().item())
 
             # Update classifier every frequency
-            if (e+1) % config.classifier_intermediate_training_frequency == 0:
-
-                print("intermediate classifier update")
+            if (i+1) % config.classifier_intermediate_training_frequency == 0:
                 p1_batch = particle_trajectory[-1, :, :].clone().detach() # (data_size, dim)
+                q_batch = benchmark.output_sampler.sample(config.epoch_data_size).to("cpu")
                 intermediate_classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p1_batch, q_batch), 
-                                                                    batch_size=config.classifier_training_batch_size, 
-                                                                    shuffle=True))
-                for x_p, x_q in intermediate_classifier_dataloader:
+                                                                                   batch_size=config.classifier_training_batch_size, 
+                                                                                   shuffle=True))
+                
+                for _ in tqdm(range(config.classifier_intermediate_training_step)):
+                    x_p, x_q = next(intermediate_classifier_dataloader)
                     x_p = x_p.to(device)
                     x_q = x_q.to(device)
-                    if intermediate_classifier_dataloader.step <= config.classifier_intermediate_training_step:
-                        classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
-                        classifier_optim.zero_grad()
-                        classifier_loss["loss"].backward()
-                        classifier_optim.step()
-                        intermediate_classifier_loss_record.append(classifier_loss["loss"].item())
-                    else:
-                        break
+                    classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
+                    classifier_optim.zero_grad()
+                    classifier_loss["loss"].backward()
+                    classifier_optim.step()
+                    intermediate_classifier_loss_record.append(classifier_loss["loss"].item())
 
         # updated particle trajectory after particle optimization
         # (len(timesteps), training_size, dim)
         X_bar = torch.cat([particle_0.detach().cpu(), particle_trajectory.detach().cpu()], dim=0) 
 
-        # evaluation of the particle trajectory after optimization
-        L2_UVP_fwd, cos_fwd, samples_result = compute_l2uvp_cos_forward_particle(X_bar, benchmark, device=device)
-        
-        plot_2d_gaussian_samples(samples_result, 
-                                 os.path.join(config.saving_dir, "sanity_check_plot_e{}_after_po.pdf".format(i+1)))
-
+        # evaluation of the particle trajectory after particle optimization
+        L2_UVP_fwd, cos_fwd, _ = compute_l2uvp_cos_forward_particle(X_bar, benchmark, device=device)
         print("$L^2$ UVP : {} at epoch {} after particle optimization".format(L2_UVP_fwd, i+1))
         print("cos similarity : {} at epoch {} after particle optimization".format(cos_fwd, i+1))
 
-        X_bar = X_bar.transpose(1,0) # (training_size, len(timesteps), channel, h, w)
+        X_bar = X_bar.transpose(1,0) # (training_size, len(timesteps), dim)
         vf_dataloader = DataLoaderIterator(DataLoader(TensorDataset(X_bar), 
-                                            batch_size=config.velocity_field_training_batch_size, 
-                                            shuffle=True))
+                                                      batch_size=config.velocity_field_training_batch_size, 
+                                                      shuffle=True))
         
         # evaluation of the velocity field before training
-        L2_UVP_fwd, cos_fwd, samples_result = compute_l2uvp_cos_forward_input(X_bar[:,0,:], 
-                                                              benchmark, 
-                                                              velocity_field, 
-                                                              config.num_timesteps, 
-                                                              config.odeint_batch_size,
-                                                              config.ode_solver, 
-                                                              device=device)        
-        plot_2d_gaussian_samples(samples_result, 
-                                 os.path.join(config.saving_dir, "sanity_check_plot_e{}_before_vf.pdf".format(i+1)))
-        
+        L2_UVP_fwd, cos_fwd, _ = compute_l2uvp_cos_forward_input(X_bar[:,0,:], 
+                                                                 benchmark, 
+                                                                 velocity_field, 
+                                                                 config.num_timesteps, 
+                                                                 config.odeint_batch_size,
+                                                                 config.ode_solver, 
+                                                                 device=device)
         print("$L^2$ UVP : {} at epoch {} before velocity field training".format(L2_UVP_fwd, i+1))
         print("cos similarity : {} at epoch {} before velocity field training".format(cos_fwd, i+1))
 
-        for x_traj_batch in vf_dataloader:
-            
-            if vf_dataloader.step <= config.velocity_field_training_step:
-                # x_traj_batch is a tuple so x_traj_batch[0] is needed
-                # (batch_size, len(timesteps), dim)
-                vf_loss = vf_loss_fn(velocity_field, 
-                                     x_traj_batch[0].to(device), 
-                                     timesteps.to(device), 
-                                     timestep_size)
-                vf_optim.zero_grad()
-                vf_loss["loss"].backward()
-                vf_optim.step()
-                vf_loss_record.append(vf_loss["loss"].detach().cpu().item())
-            else:
-                break
+        for _ in range(config.velocity_field_training_step):
+
+            x_traj_batch = next(vf_dataloader)
+            # x_traj_batch is a tuple so x_traj_batch[0] is needed
+            # (batch_size, len(timesteps), dim)
+            vf_loss = vf_loss_fn(velocity_field, 
+                                 x_traj_batch[0].to(device), 
+                                 timesteps.to(device), 
+                                 timestep_size)
+            vf_optim.zero_grad()
+            vf_loss["loss"].backward()
+            vf_optim.step()
+            vf_loss_record.append(vf_loss["loss"].detach().cpu().item())
 
         # evaluation of the velocity field after training
         L2_UVP_fwd, cos_fwd, samples_result = compute_l2uvp_cos_forward_input(X_bar[:,0,:], 

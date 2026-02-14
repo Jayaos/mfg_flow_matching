@@ -80,7 +80,7 @@ class MFGFlowHDGaussianConfig():
                  velocity_field_initialization,
                  velocity_field_initialization_training_step,
                  velocity_field_training_step,
-                 particle_optimization_training_epoch,
+                 particle_optimization_training_step,
                  particle_optimization_learning_rate,
                  particle_optimization_batch_size,
                  kinetic_loss_weight,
@@ -109,7 +109,7 @@ class MFGFlowHDGaussianConfig():
         self.velocity_field_initialization = velocity_field_initialization
         self.velocity_field_initialization_training_step = velocity_field_initialization_training_step        
         self.velocity_field_training_step = velocity_field_training_step
-        self.particle_optimization_training_epoch = particle_optimization_training_epoch
+        self.particle_optimization_training_step = particle_optimization_training_step
         self.particle_optimization_learning_rate = particle_optimization_learning_rate
         self.particle_optimization_batch_size = particle_optimization_batch_size
         self.kinetic_loss_weight = kinetic_loss_weight
