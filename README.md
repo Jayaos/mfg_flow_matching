@@ -2,16 +2,23 @@
 
 This repository contains code for the experiments in the paper **["High-dimensional Mean-Field Games by Particle-based Flow Matching"](https://arxiv.org/pdf/2512.01172)**.
 
-## Implementation Guide
 
-Implemented on
-python version: 3.9.21
-CUDA: 12.8
-other required packages are contained in requirements.txt
+## Setup
+
+The current code was implemented on Python v3.9.21 and CUDA 12.8. Dependencies can be installed by requirements.txt.
+
 
 ## High-dimensional Gaussian Benchmark
 
+The codes for the experiments on high-dimensional Gaussian benchmark are available in run_hd.py package. We used the same benchmark from **["Do Neural Optimal Transport Solvers Work? A Continuous Wasserstein-2 Benchmark"](https://proceedings.neurips.cc/paper_files/paper/2021/file/7a6a6127ff85640ec69691fb0f7cb1a2-Paper.pdf)**, available at **[the authors' github](https://github.com/iamalexkorotin/Wasserstein2Benchmark)**.
+
+Below is the implementation example on notebook.
+
+
 ### 2-dimensional Gaussian mixture with visualization
+
+```run_mfg_flow_hdgaussian_2dvis()``` is for 2-dimensional Gaussian with visualization of the results.
+
 
 ```
 from config import MFGFlowHDGaussianConfig
@@ -45,20 +52,16 @@ config = MFGFlowHDGaussianConfig(dim=2,
                         ode_solver="rk4",
                         odeint_batch_size=4096,
 			num_timesteps=5,
-                        saving_dir="/storage/home/hcoda1/0/jlee3541/p-yxie77-0/projects/mfg_flow/results/hd_gaussian/hdg_2_011026/")
-
+                        saving_dir="")
 
 run_mfg_flow_hdgaussian_2dvis(config, device=0)
 ```
-
-```run_mfg_flow_hdgaussian_2dvis()``` has additional function to visualize the results.
 
 
 ### High-dimensional Gaussian mixture
 
 
 ```
-
 from config import MFGFlowHDGaussianConfig
 from run_hd import run_mfg_flow_hdgaussian
 import torch
@@ -90,7 +93,7 @@ config = MFGFlowHDGaussianConfig(dim=4,
                         ode_solver="rk4",
                         odeint_batch_size=4096,
 			num_timesteps=5,
-                        saving_dir="/storage/home/hcoda1/0/jlee3541/p-yxie77-0/projects/mfg_flow/results/hd_gaussian/hdg_4_010726/")
+                        saving_dir="")
 
 
 run_mfg_flow_hdgaussian(config, device=0)
