@@ -17,7 +17,6 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 import os
-import sys
 
 
 def run_mfg_flow_hdgaussian(config: MFGFlowHDGaussianConfig, device):
