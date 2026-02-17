@@ -158,7 +158,7 @@ def plot_particle_trajectories_toy_example(model_dir,
         config.velocity_field_layer_type,
         config.velocity_field_activation,
     )
-    velocity_field.load_state_dict(torch.load(model_dir))
+    velocity_field.load_state_dict(torch.load(model_dir), map_location=torch.device("cpu"))
 
     particle_trajectories = torch.load(particle_trajectories_dir)
     particle_trajectories = particle_trajectories.detach().cpu().numpy()
