@@ -137,15 +137,15 @@ def plot_random_trajectory(model_dir,
             a.set_title("Trajectories by solving ODE", fontsize=fsize)
 
 
-def plot_2d_particle_vf_trajectories_(model_dir,
-                           config_dir,
-                           img_dir,
-                           particle_trajectories_dir,
-                           num_selection,
-                           ode_solver,
-                           sample_size,
-                           seed=None,
-                           saving=None):
+def plot_particle_trajectories_toy_example(model_dir,
+                                           config_dir,
+                                           img_dir,
+                                           particle_trajectories_dir,
+                                           num_selection,
+                                           ode_solver,
+                                           sample_size,
+                                           seed=None,
+                                           saving=None):
     
     epoch = model_dir.split("/")[-2]
     epoch_num = epoch.split("_")[-1]
@@ -278,90 +278,6 @@ def plot_2d_particle_vf_trajectories_(model_dir,
         saving_dir = os.path.join(
             saving, f"particles_ode_trajectories_{epoch}.pdf"
         )
-        fig.savefig(saving_dir, dpi=300, bbox_inches="tight")
-
-
-def plot_2d_particle_vf_trajectories(model_dir,
-                           config_dir,
-                           img_dir,
-                           particle_trajectories_dir,
-                           num_selection,
-                           ode_solver,
-                           sample_size,
-                           seed=None,
-                           saving=None):
-    
-    epoch = model_dir.split("/")[-2]
-    epoch_num = epoch.split("_")[-1]
-    config = load_data(config_dir)
-
-    velocity_field = MLPVelocityField(2, 
-                                      1, # time dim = 1
-                                      config.velocity_field_hidden_dims, 
-                                      config.velocity_field_layer_type,
-                                      config.velocity_field_activation)
-    velocity_field.load_state_dict(torch.load(model_dir))
-
-    particle_trajectories = torch.load(particle_trajectories_dir)
-    particle_trajectories = particle_trajectories.detach().cpu().numpy()
-    if seed:
-        g = torch.Generator().manual_seed(seed)  # set your seed here
-        selected_idx = torch.randint(0, particle_trajectories.shape[0], (num_selection,), generator=g)
-    else:
-        selected_idx = torch.randint(0, particle_trajectories.shape[0], (num_selection,))
-
-    num_timesteps = particle_trajectories.shape[1]
-    timesteps = torch.linspace(0, 1, num_timesteps)
-
-    particle_trajectories_selected = particle_trajectories[selected_idx, :, :]
-    particle_trajectories_selected_init_points = torch.from_numpy(particle_trajectories_selected[:, 0, :])
-    particle_trajectories_ode_selected = odeint(velocity_field, 
-                                                particle_trajectories_selected_init_points, 
-                                                timesteps, 
-                                                method=ode_solver)
-    particle_trajectories_ode_selected = particle_trajectories_ode_selected.transpose(1,0).cpu().detach().numpy()
-
-
-    print(f'Relative error: {100*np.linalg.norm(particle_trajectories_ode_selected - particle_trajectories_selected) / np.linalg.norm(particle_trajectories_selected):.4f}%')
-    fig, ax = plt.subplots(1, 2, figsize=(16, 8))
-    for i, traj in enumerate([particle_trajectories_selected, 
-                              particle_trajectories_ode_selected]):
-        
-        for j in range(len(selected_idx)):
-            color = plt.cm.viridis(j / len(selected_idx))
-            ax[i].plot(traj[j, :, 0], traj[j, :, 1], '-', color="black")
-            if j == 0:
-                ax[i].plot(traj[j, 0, 0], traj[j, 0, 1], marker='o', markersize=5, color='red')
-                ax[i].plot(traj[j, -1, 0], traj[j, -1, 1], marker='o', markersize=5, color='blue')
-            else:
-                ax[i].plot(traj[j, 0, 0], traj[j, 0, 1], marker='o', markersize=5, color='red')
-                ax[i].plot(traj[j, -1, 0], traj[j, -1, 1], marker='o', markersize=5, color='blue')
-            # Also, give a small label on top of the starting point
-            #c = 0.15
-            #ax[i].text(traj[j, 0, 0], traj[j, 0, 1] + c, f'{j}', fontsize=16)
-
-    p_samples = generate_checkerboard_2d(sample_size, img_dir)
-    q_samples = torch.randn_like(p_samples)
-
-    for i, a in enumerate(ax.flatten()):
-        a.scatter(p_samples[:, 0], p_samples[:, 1], s=0.01, alpha=0.5, color='blue', rasterized=True)
-        a.scatter(q_samples[:, 0], q_samples[:, 1], s=0.01, alpha=0.5, color='red', rasterized=True)
-
-        a.set_xlim(-4.5, 4.5)
-        a.set_ylim(-4.5, 4.5)
-        fsize = 16
-        #a.legend(fontsize=fsize, markerscale=3, loc='upper center', bbox_to_anchor=(0.5, -0.05),
-                #fancybox=True, shadow=True, ncol=2)
-        a.tick_params(axis='both', which='major', labelsize=fsize - 2)
-        if i == 0:
-            a.set_title("trajectories after particle update", fontsize=fsize)
-        elif i == 1:
-            a.set_title("trajectories resampled from velocity field", fontsize=fsize)
-
-    fig.suptitle("training epoch: {}".format(epoch_num), fontsize=fsize+3)
-
-    if saving:
-        saving_dir = os.path.join(saving, "particles_ode_trajectories_{}.pdf".format(epoch))
         fig.savefig(saving_dir, dpi=300, bbox_inches="tight")
 
 
