@@ -10,11 +10,11 @@ def parse_args():
     p.add_argument("--config_dir", type=str)
     p.add_argument("--img_dir", type=str)
     p.add_argument("--particle_trajectories_dir", type=str)
-    p.add_argument("--num_selection", type=int)
-    p.add_argument("--ode_solver", type=str)
-    p.add_argument("--sample_size", type=int)
-    p.add_argument("--seed", type=int)
-    p.add_argument("--saving_dir", type=str)
+    p.add_argument("--num_selection", type=int, default=30)
+    p.add_argument("--ode_solver", type=str, default="rk4")
+    p.add_argument("--sample_size", type=int, default=20000)
+    p.add_argument("--seed", type=int, default=2026)
+    p.add_argument("--saving_dir", type=str, default="./results/mfg_flow_toy_example/")
 
     return p.parse_args()
 
