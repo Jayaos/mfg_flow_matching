@@ -73,6 +73,7 @@ if __name__ == "__main__":
     
     args = parse_args()
 
+
     dataset_config = ShoebagsDatasetConfig(args.shoes_dataset_dir,
                                            args.bags_dataset_dir,
                                            args.train_shoes_latent_params_dir,
