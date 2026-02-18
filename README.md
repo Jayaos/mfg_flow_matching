@@ -1,14 +1,30 @@
 ## High-dimensional Mean-Field Games by Particle-based Flow Matching
 
-This repository contains code for the experiments in the paper **["High-dimensional Mean-Field Games by Particle-based Flow Matching"](https://arxiv.org/pdf/2512.01172)**.
+This repository contains code to reproduce the experiments in the paper **["High-dimensional Mean-Field Games by Particle-based Flow Matching"](https://arxiv.org/pdf/2512.01172)**.
+
+### Environment Setup
+
+Default setup was set to Python 3.9.21. Environment setup can be done as:
+
+```
+conda env create -f environment.yml
+
+conda activate mfg_flow
+```
 
 
-### High-dimensional Gaussian Benchmark
+### Toy Example
 
-The codes for the experiments on high-dimensional Gaussian benchmark are available in run_hd.py package. We used the same benchmark from **["Do Neural Optimal Transport Solvers Work? A Continuous Wasserstein-2 Benchmark"](https://proceedings.neurips.cc/paper_files/paper/2021/file/7a6a6127ff85640ec69691fb0f7cb1a2-Paper.pdf)**, available at **[the authors' github](https://github.com/iamalexkorotin/Wasserstein2Benchmark)**.
+```
+python mfg_flow_toy_example.py
+```
 
-Below is the implementation example on notebook.
 
+### Image-to-image Translation
+
+#### Shoes to bags
+
+#### CelebA
 
 
 ## Citation
