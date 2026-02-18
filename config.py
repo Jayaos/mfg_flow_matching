@@ -274,8 +274,8 @@ class ShoebagsDatasetConfig():
     def __init__(self, 
                  shoes_dataset_dir,
                  bags_dataset_dir,
-                 training_shoes_latent_params_dir,
-                 training_bags_latent_params_dir,
+                 train_shoes_latent_params_dir,
+                 train_bags_latent_params_dir,
                  test_shoes_latent_params_dir,
                  test_bags_latent_params_dir,
                  train_ratio,
@@ -284,8 +284,8 @@ class ShoebagsDatasetConfig():
         
         self.shoes_dataset_dir = shoes_dataset_dir
         self.bags_dataset_dir = bags_dataset_dir
-        self.training_shoes_latent_params_dir = training_shoes_latent_params_dir
-        self.training_bags_latent_params_dir = training_bags_latent_params_dir
+        self.train_shoes_latent_params_dir = train_shoes_latent_params_dir
+        self.train_bags_latent_params_dir = train_bags_latent_params_dir
         self.test_shoes_latent_params_dir = test_shoes_latent_params_dir
         self.test_bags_latent_params_dir = test_bags_latent_params_dir
         self.train_ratio = train_ratio
