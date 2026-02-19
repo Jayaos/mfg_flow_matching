@@ -47,6 +47,11 @@ You will see two VAE models with configuration files:
 - `vae_celeba.ckpt`
 - `vae_celeba_config.yaml`
 
+To encode the images:
+```
+wget http://efrosgans.eecs.berkeley.edu/iGAN/datasets/shoes_64.zip
+wget http://efrosgans.eecs.berkeley.edu/iGAN/datasets/handbag_64.zip
+```
 
 #### Shoes to bags
 
