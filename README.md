@@ -36,6 +36,17 @@ After unzipping, you should obtain the following files:
 
 CelebA data can be downloaded from [here](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
 
+To reproduce the experiment, the trained VAE also need to be downloaded from our [huggingface repository](https://huggingface.co/jayaos/vae_mfg_flow_matching):
+```
+git clone https://huggingface.co/jayaos/vae_mfg_flow_matching
+```
+
+You will see two VAE models with configuration files:
+- `vae_shoebags.ckpt`
+- `vae_shoebags_config.yaml`
+- `vae_celeba.ckpt`
+- `vae_celeba_config.yaml`
+
 
 #### Shoes to bags
 
