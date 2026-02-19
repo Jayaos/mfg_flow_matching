@@ -22,24 +22,28 @@ python mfg_flow_toy_example.py
 
 ### Image-to-image Translation
 
-#### Shoes to bags
+Images of shoes and handbags can be downloaded from [here](http://efrosgans.eecs.berkeley.edu/iGAN/datasets/).
 
-To download the data:
+Or directly via the command line:
 ```
 wget http://efrosgans.eecs.berkeley.edu/iGAN/datasets/shoes_64.zip
 wget http://efrosgans.eecs.berkeley.edu/iGAN/datasets/handbag_64.zip
 ```
-and unzip those files to obtain
 
-```
-shoes_64.hdf5
-handbag_64.hdf5
-```
+After unzipping, you should obtain the following files:
+- `shoes_64.hdf5`
+- `handbag_64.hdf5`
+
+CelebA data can be downloaded from [here](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
+
+
+#### Shoes to bags
+
+
 
 
 #### CelebA
 
-CelebA data can be downloaded at [here](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
 
 
 
