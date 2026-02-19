@@ -24,7 +24,23 @@ python mfg_flow_toy_example.py
 
 #### Shoes to bags
 
+To download the data:
+```
+wget http://efrosgans.eecs.berkeley.edu/iGAN/datasets/shoes_64.zip
+wget http://efrosgans.eecs.berkeley.edu/iGAN/datasets/handbag_64.zip
+```
+and unzip those files to obtain
+
+```
+shoes_64.hdf5
+handbag_64.hdf5
+```
+
+
 #### CelebA
+
+CelebA data can be downloaded at [here](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
+
 
 
 ## Citation
