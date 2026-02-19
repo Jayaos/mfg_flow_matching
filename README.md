@@ -20,6 +20,12 @@ python mfg_flow_toy_example.py
 ```
 
 
+### Non-potential MFG
+
+```
+python mfg_flow_nonpotential.py --save-plots 'directory to save plots'
+```
+
 ### Image-to-image Translation
 
 Images of shoes and handbags can be downloaded from [here](http://efrosgans.eecs.berkeley.edu/iGAN/datasets/).
