@@ -2,6 +2,7 @@ import argparse
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 from model import MLPVelocityField, vf_loss_fn
 from torchdiffeq import odeint
 from scipy.stats import gaussian_kde
@@ -205,6 +206,9 @@ def main():
     print(f"  mu_1: {args.mu_1}")
     print(f"  lambda_G: {args.lamb_G}")
     print()
+
+    if args.save_plots:
+        os.makedirs(args.save_plots, exist_ok=True)
     
     # Convert arguments to tensors
     mu_0 = torch.tensor(args.mu_0, dtype=torch.float32)
