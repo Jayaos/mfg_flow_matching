@@ -164,10 +164,10 @@ def load_image_dataset(config, dataset_config):
 
 def load_shoebags_latent_params(dataset_config):
 
-    training_bags_latent_params = torch.load(dataset_config.training_bags_latent_params_dir)
-    training_shoes_latent_params = torch.load(dataset_config.training_shoes_latent_params_dir)
-    test_bags_latent_params = torch.load(dataset_config.test_bags_latent_params_dir)
-    test_shoes_latent_params = torch.load(dataset_config.test_shoes_latent_params_dir)
+    training_bags_latent_params = torch.load(dataset_config.train_encoded_bags_dir)
+    training_shoes_latent_params = torch.load(dataset_config.train_encoded_shoes_dir)
+    test_bags_latent_params = torch.load(dataset_config.test_encoded_bags_dir)
+    test_shoes_latent_params = torch.load(dataset_config.test_encoded_shoes_dir)
 
     training_bags_mu, training_bags_logvar = torch.chunk(training_bags_latent_params, 2, dim=1) # (data_size, channel/2, w, h)
     training_shoes_mu, training_shoes_logvar = torch.chunk(training_shoes_latent_params, 2, dim=1) # (data_size, channel/2, w, h)
@@ -180,10 +180,10 @@ def load_shoebags_latent_params(dataset_config):
 
 def load_celeba_latent_params(dataset_config):
 
-    training_male_latent_params = torch.load(dataset_config.training_male_latent_params_dir)
-    training_female_latent_params = torch.load(dataset_config.training_female_latent_params_dir)
-    test_male_latent_params = torch.load(dataset_config.test_male_latent_params_dir)
-    test_female_latent_params = torch.load(dataset_config.test_female_latent_params_dir)
+    training_male_latent_params = torch.load(dataset_config.train_encoded_male_dir)
+    training_female_latent_params = torch.load(dataset_config.train_encoded_female_dir)
+    test_male_latent_params = torch.load(dataset_config.test_encoded_male_dir)
+    test_female_latent_params = torch.load(dataset_config.test_encoded_female_dir)
 
     training_male_mu, training_male_logvar = torch.chunk(training_male_latent_params, 2, dim=1) # (data_size, channel/2, w, h)
     training_female_mu, training_female_logvar = torch.chunk(training_female_latent_params, 2, dim=1) # (data_size, channel/2, w, h)
