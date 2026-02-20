@@ -63,20 +63,43 @@ You will see two VAE models with configuration files:
 - `vae_celeba.ckpt`
 - `vae_celeba_config.yaml`
 
-To encode the images:
+We need to encode images into the latent space using the trained VAE. To encode the images using VAE, run ```encode_shoebags.py``` and ```encode_celeba.py```.
+
 ```
 python encode_shoebags.py
 python encode_celeba.py
 ```
 
-#### Shoes to bags
+This will give encoded train and test images for image-to-image translation on bags to shoes:
+- `train_encoded_bags.pt`
+- `train_encoded_shoes.pt`
+- `test_encoded_bags.pt`
+- `test_encoded_shoes.pt`
+
+and for CelebA male to female.
+- `train_encoded_male.pt`
+- `train_encoded_female.pt`
+- `test_encoded_male.pt`
+- `test_encoded_female.pt`
+
+
+#### Bags to shoes
+
+Running ```mfg_flow_shoebags.py``` implements our method on image-to-image transltaion of bags to shoes. Default hyperparameters were set to the paper's setup. Directories of the trained VAE, VAE config, raw data, and encoded data need to be specified as below. Details of the hyperparameters can be available in ```mfg_flow_shoebags.py```.
+
+```
+python mfg_flow_shoebags.py --vae_config_dir ./vae_mfg_flow_matching/vae_shoebags_config.yaml --vae_model_dir ./vae_mfg_flow_matching/vae_shoebags.ckpt --shoes_dataset_dir ./shoes_64.hdf5 --bags_dataset_dir ./handbag_64.hdf5 --train_encoded_shoes_dir ./train_encoded_shoes.pt --train_encoded_bags_dir ./train_encoded_bags.pt --test_encoded_shoes_dir ./test_encoded_shoes.pt --test_encoded_bags_dir ./test_encoded_bags.pt
+```
 
 
 
+#### CelebA male to female
 
-#### CelebA
+Running ```mfg_flow_celeba.py``` implements our method on image-to-image transltaion of CelebA male to female. Default hyperparameters were set to the paper's setup. Directories of the trained VAE, VAE config, raw data, and encoded data need to be specified as below. Details of the hyperparameters can be available in ```mfg_flow_celeba.py```.
 
-
+```
+python mfg_flow_celeba.py --vae_config_dir ./vae_mfg_flow_matching/vae_celeba_config.yaml --vae_model_dir ./vae_mfg_flow_matching/vae_celeba.ckpt --data_dir ./celeba/ --train_encoded_male_dir ./train_encoded_male.pt --train_encoded_female_dir ./train_encoded_female.pt --test_encoded_male_dir ./test_encoded_male.pt --test_encoded_female_dir ./test_encoded_female.pt
+```
 
 
 ## Citation
