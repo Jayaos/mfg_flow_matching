@@ -8,7 +8,7 @@ def parse_args():
 
     p.add_argument("--model_dir", type=str)
     p.add_argument("--config_dir", type=str)
-    p.add_argument("--img_dir", type=str)
+    p.add_argument("--img_dir", type=str, default="./data/img_checkerboard_4x4.png")
     p.add_argument("--particle_trajectories_dir", type=str)
     p.add_argument("--num_selection", type=int, default=30)
     p.add_argument("--ode_solver", type=str, default="rk4")

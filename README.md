@@ -15,12 +15,22 @@ conda activate mfg_flow
 
 ### Toy Example
 
+Running ```mfg_flow_toy_example.py``` will save models to the specified directory. The default hyperparameters setup will reproduct similar results in the paper. 
+
 ```
-python mfg_flow_toy_example.py
+python mfg_flow_toy_example.py --saving_dir 'directory to save'
+```
+
+To plot trajectories, use ```mfg_flow_toy_example_plotting.py``` as:
+
+```
+python mfg_flow_toy_example_plotting.py --model_dir '' --config_dir '' --particle_trajectories_dir '' --saving_dir ''
 ```
 
 
 ### Non-potential MFG
+
+Running ```mfg_flow_nonpotential.py``` will obtain the results and plots in the paper.
 
 ```
 python mfg_flow_nonpotential.py --save-plots 'directory to save plots'
@@ -55,8 +65,8 @@ You will see two VAE models with configuration files:
 
 To encode the images:
 ```
-wget http://efrosgans.eecs.berkeley.edu/iGAN/datasets/shoes_64.zip
-wget http://efrosgans.eecs.berkeley.edu/iGAN/datasets/handbag_64.zip
+python encode_shoebags.py
+python encode_celeba.py
 ```
 
 #### Shoes to bags
