@@ -46,7 +46,7 @@ def vae_encode_shoebags(vae_config_dir, vae_model_dir,
         encoded.append(params.cpu())
 
     encoded = torch.cat(encoded, dim=0)
-    torch.save(encoded, os.path.join(saving_dir, "shoes_train_encoded.pt"))
+    torch.save(encoded, os.path.join(saving_dir, "train_encoded_shoes.pt"))
 
     print("endoing shoes for test dataset")
     encoded = []
@@ -59,7 +59,7 @@ def vae_encode_shoebags(vae_config_dir, vae_model_dir,
         encoded.append(params.cpu())
 
     encoded = torch.cat(encoded, dim=0)
-    torch.save(encoded, os.path.join(saving_dir, "shoes_test_encoded.pt"))
+    torch.save(encoded, os.path.join(saving_dir, "test_encoded_shoes.pt"))
 
     print("endoing bags for train dataset")
     encoded = []
@@ -72,7 +72,7 @@ def vae_encode_shoebags(vae_config_dir, vae_model_dir,
         encoded.append(params.cpu())
 
     encoded = torch.cat(encoded, dim=0)
-    torch.save(encoded, os.path.join(saving_dir, "bags_train_encoded.pt"))
+    torch.save(encoded, os.path.join(saving_dir, "train_encoded_bags.pt"))
 
     print("endoing bags for test dataset")
     encoded = []
@@ -85,7 +85,7 @@ def vae_encode_shoebags(vae_config_dir, vae_model_dir,
         encoded.append(params.cpu())
 
     encoded = torch.cat(encoded, dim=0)
-    torch.save(encoded, os.path.join(saving_dir, "bags_test_encoded.pt"))
+    torch.save(encoded, os.path.join(saving_dir, "test_encoded_bags.pt"))
 
 
 def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size, saving_dir, device):
@@ -137,7 +137,7 @@ def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size
         encoded.append(params.cpu())
 
     encoded = torch.cat(encoded, dim=0)
-    torch.save(encoded, os.path.join(saving_dir, "celeba_male_train_encoded.pt"))
+    torch.save(encoded, os.path.join(saving_dir, "train_encoded_male.pt"))
 
     print("endoing CelebA female for train dataset")
     encoded = []
@@ -158,7 +158,7 @@ def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size
         encoded.append(params.cpu())
 
     encoded = torch.cat(encoded, dim=0)
-    torch.save(encoded, os.path.join(saving_dir, "celeba_female_train_encoded.pt"))
+    torch.save(encoded, os.path.join(saving_dir, "train_encoded_female.pt"))
 
     print("endoing CelebA male for test dataset")
     encoded = []
@@ -171,7 +171,7 @@ def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size
         encoded.append(params.cpu())
 
     encoded = torch.cat(encoded, dim=0)
-    torch.save(encoded, os.path.join(saving_dir, "celeba_male_test_encoded.pt"))
+    torch.save(encoded, os.path.join(saving_dir, "test_encoded_male.pt"))
 
     print("endoing CelebA female for test dataset")
     encoded = []
@@ -184,5 +184,5 @@ def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size
         encoded.append(params.cpu())
 
     encoded = torch.cat(encoded, dim=0)
-    torch.save(encoded, os.path.join(saving_dir, "celeba_female_test_encoded.pt"))
+    torch.save(encoded, os.path.join(saving_dir, "test_encoded_female.pt"))
 
