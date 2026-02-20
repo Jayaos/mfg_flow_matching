@@ -274,20 +274,20 @@ class ShoebagsDatasetConfig():
     def __init__(self, 
                  shoes_dataset_dir,
                  bags_dataset_dir,
-                 train_shoes_latent_params_dir,
-                 train_bags_latent_params_dir,
-                 test_shoes_latent_params_dir,
-                 test_bags_latent_params_dir,
+                 train_encoded_shoes_dir,
+                 train_encoded_bags_dir,
+                 test_encoded_shoes_dir,
+                 test_encoded_bags_dir,
                  train_ratio,
                  seed
                  ):
         
         self.shoes_dataset_dir = shoes_dataset_dir
         self.bags_dataset_dir = bags_dataset_dir
-        self.train_shoes_latent_params_dir = train_shoes_latent_params_dir
-        self.train_bags_latent_params_dir = train_bags_latent_params_dir
-        self.test_shoes_latent_params_dir = test_shoes_latent_params_dir
-        self.test_bags_latent_params_dir = test_bags_latent_params_dir
+        self.train_encoded_shoes_dir = train_encoded_shoes_dir
+        self.train_encoded_bags_dir = train_encoded_bags_dir
+        self.test_encoded_shoes_dir = test_encoded_shoes_dir
+        self.test_encoded_bags_dir = test_encoded_bags_dir
         self.train_ratio = train_ratio
         self.seed = seed
 
@@ -296,17 +296,17 @@ class CelebADatasetConfig():
 
     def __init__(self, 
                  data_dir,
-                 training_male_latent_params_dir,
-                 training_female_latent_params_dir,
-                 test_male_latent_params_dir,
-                 test_female_latent_params_dir
+                 train_encoded_male_dir,
+                 train_encoded_female_dir,
+                 test_encoded_male_latent_dir,
+                 test_encoded_female_dir
                  ):
         
         self.data_dir = data_dir
-        self.training_male_latent_params_dir = training_male_latent_params_dir
-        self.training_female_latent_params_dir = training_female_latent_params_dir
-        self.test_male_latent_params_dir = test_male_latent_params_dir
-        self.test_female_latent_params_dir = test_female_latent_params_dir
+        self.train_encoded_male_dir = train_encoded_male_dir
+        self.train_encoded_female_dir = train_encoded_female_dir
+        self.test_encoded_male_latent_dir = test_encoded_male_latent_dir
+        self.test_encoded_female_dir = test_encoded_female_dir
 
 
 class BaselineImageConfig():
