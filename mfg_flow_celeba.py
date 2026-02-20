@@ -25,7 +25,7 @@ def parse_args():
     p.add_argument("--test_encoded_male_dir", type=str)
     p.add_argument("--test_encoded_female_dir", type=str)
     p.add_argument("--train_ratio", type=float, default=0.8)
-
+    
 
     # classifier
     p.add_argument("--classifier_channels", type=int, nargs="+", default=[256, 512, 512, 1024, 1024])
@@ -46,22 +46,22 @@ def parse_args():
     p.add_argument("--velocity_field_initialization_training_step", type=int, default=10000)
     p.add_argument("--velocity_field_learning_rate", type=float, default=.001)  
     p.add_argument("--velocity_field_training_batch_size", type=int, default=256)  
-    p.add_argument("--initial_velocity_field_training_step", type=int, default=1000)   
-    p.add_argument("--velocity_field_training_step", type=int, default=1000)
+    p.add_argument("--initial_velocity_field_training_step", type=int, default=300)   
+    p.add_argument("--velocity_field_training_step", type=int, default=300)
 
 
     # particle optimization
-    p.add_argument("--initial_particle_optimization_epoch", type=int, default=1000)         
-    p.add_argument("--particle_optimization_epoch", type=int, default=1000)        
+    p.add_argument("--initial_particle_optimization_epoch", type=int, default=300)         
+    p.add_argument("--particle_optimization_epoch", type=int, default=300)        
     p.add_argument("--particle_optimization_learning_rate", type=float, default=.001)  
-    p.add_argument("--particle_optimization_batch_size", type=int, default=512)      
+    p.add_argument("--particle_optimization_batch_size", type=int, default=1024)      
 
 
     # training
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
     p.add_argument("--epochs", type=int, default=50)
-    p.add_argument("--epoch_training_ratio", type=float, default=0.13)
+    p.add_argument("--epoch_training_ratio", type=float, default=0.15)
     p.add_argument("--ode_solver", type=str, default="rk4")       
     p.add_argument("--odeint_batch_size", type=int, default=2048)               
     p.add_argument("--num_timesteps", type=int, default=15)   
