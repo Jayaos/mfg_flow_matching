@@ -298,14 +298,14 @@ class CelebADatasetConfig():
                  data_dir,
                  train_encoded_male_dir,
                  train_encoded_female_dir,
-                 test_encoded_male_latent_dir,
+                 test_encoded_male_dir,
                  test_encoded_female_dir
                  ):
         
         self.data_dir = data_dir
         self.train_encoded_male_dir = train_encoded_male_dir
         self.train_encoded_female_dir = train_encoded_female_dir
-        self.test_encoded_male_latent_dir = test_encoded_male_latent_dir
+        self.test_encoded_male_dir = test_encoded_male_dir
         self.test_encoded_female_dir = test_encoded_female_dir
 
 
