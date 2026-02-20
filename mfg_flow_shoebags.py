@@ -21,10 +21,10 @@ def parse_args():
     # dataset
     p.add_argument("--shoes_dataset_dir", type=str)
     p.add_argument("--bags_dataset_dir", type=str)
-    p.add_argument("--train_shoes_latent_params_dir", type=str)
-    p.add_argument("--train_bags_latent_params_dir", type=str)
-    p.add_argument("--test_shoes_latent_params_dir", type=str)
-    p.add_argument("--test_bags_latent_params_dir", type=str)
+    p.add_argument("--train_encoded_shoes_dir", type=str)
+    p.add_argument("--train_encoded_bags_dir", type=str)
+    p.add_argument("--test_encoded_shoes_dir", type=str)
+    p.add_argument("--test_encoded_bags_dir", type=str)
     p.add_argument("--train_ratio", type=float, default=0.8)
 
 
@@ -62,6 +62,7 @@ def parse_args():
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
     p.add_argument("--epochs", type=int, default=50)
+    p.add_argument("--epoch_training_ratio", type=float, default=0.13)
     p.add_argument("--ode_solver", type=str, default="rk4")       
     p.add_argument("--odeint_batch_size", type=int, default=2048)               
     p.add_argument("--num_timesteps", type=int, default=15)   
@@ -76,10 +77,10 @@ if __name__ == "__main__":
 
     dataset_config = ShoebagsDatasetConfig(args.shoes_dataset_dir,
                                            args.bags_dataset_dir,
-                                           args.train_shoes_latent_params_dir,
-                                           args.train_bags_latent_params_dir,
-                                           args.test_shoes_latent_params_dir,
-                                           args.test_bags_latent_params_dir,
+                                           args.train_encoded_shoes_dir,
+                                           args.train_encoded_bags_dir,
+                                           args.test_encoded_shoes_dir,
+                                           args.test_encoded_bags_dir,
                                            args.train_ratio,
                                            args.seed)
 
