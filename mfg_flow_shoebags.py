@@ -11,7 +11,7 @@ def parse_args():
 
 
     # input/output
-    p.add_argument("--saving_dir", type=str, default="./results/mfg_flow_toy_example/")
+    p.add_argument("--saving_dir", type=str, default="./results/mfg_flow_shoebags/")
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--seed", type=int, default=2025)
     p.add_argument("--vae_config_dir", type=str)
