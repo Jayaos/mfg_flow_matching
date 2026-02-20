@@ -20,10 +20,10 @@ def parse_args():
 
     # dataset
     p.add_argument("--data_dir", type=str)
-    p.add_argument("--train_encoded_shoes_dir", type=str)
-    p.add_argument("--train_encoded_bags_dir", type=str)
-    p.add_argument("--test_encoded_shoes_dir", type=str)
-    p.add_argument("--test_encoded_bags_dir", type=str)
+    p.add_argument("--train_encoded_male_dir", type=str)
+    p.add_argument("--train_encoded_female_dir", type=str)
+    p.add_argument("--test_encoded_male_dir", type=str)
+    p.add_argument("--test_encoded_female_dir", type=str)
     p.add_argument("--train_ratio", type=float, default=0.8)
 
 
