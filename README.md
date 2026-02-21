@@ -65,9 +65,9 @@ You will see two VAE models with configuration files:
 
 We need to encode images into the latent space using the trained VAE. To encode the images using VAE, run ```encode_shoebags.py``` and ```encode_celeba.py```.
 
+Or download from our [huggingface dataset repository](https://huggingface.co/datasets/jayaos/vae_encoded_mfg_flow_matching):
 ```
-python encode_shoebags.py
-python encode_celeba.py
+git clone https://huggingface.co/datasets/jayaos/vae_encoded_mfg_flow_matching
 ```
 
 This will give encoded train and test images for image-to-image translation on bags to shoes:
