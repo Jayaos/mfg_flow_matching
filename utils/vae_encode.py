@@ -35,7 +35,7 @@ def vae_encode_shoebags(vae_config_dir, vae_model_dir,
     bags_test_dataloader = DataLoader(bags_test_dataset, batch_size=batch_size, drop_last=False)
 
     # encode
-    print("endoing shoes for train dataset")
+    print("encoding shoes for train dataset")
     encoded = []
     for batch in tqdm(shoes_train_dataloader):
 
@@ -48,7 +48,7 @@ def vae_encode_shoebags(vae_config_dir, vae_model_dir,
     encoded = torch.cat(encoded, dim=0)
     torch.save(encoded, os.path.join(saving_dir, "train_encoded_shoes.pt"))
 
-    print("endoing shoes for test dataset")
+    print("encoding shoes for test dataset")
     encoded = []
     for batch in tqdm(shoes_test_dataloader):
 
@@ -61,7 +61,7 @@ def vae_encode_shoebags(vae_config_dir, vae_model_dir,
     encoded = torch.cat(encoded, dim=0)
     torch.save(encoded, os.path.join(saving_dir, "test_encoded_shoes.pt"))
 
-    print("endoing bags for train dataset")
+    print("encoding bags for train dataset")
     encoded = []
     for batch in tqdm(bags_train_dataloader):
 
@@ -74,7 +74,7 @@ def vae_encode_shoebags(vae_config_dir, vae_model_dir,
     encoded = torch.cat(encoded, dim=0)
     torch.save(encoded, os.path.join(saving_dir, "train_encoded_bags.pt"))
 
-    print("endoing bags for test dataset")
+    print("encoding bags for test dataset")
     encoded = []
     for batch in tqdm(bags_test_dataloader):
 
@@ -118,7 +118,7 @@ def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size
 
     # encode
     # train and valid set into a single training set
-    print("endoing CelebA male for train dataset")
+    print("encoding CelebA male for train dataset")
     encoded = []
     for batch in tqdm(celeba_male_train_dataloader):
 
@@ -139,7 +139,7 @@ def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size
     encoded = torch.cat(encoded, dim=0)
     torch.save(encoded, os.path.join(saving_dir, "train_encoded_male.pt"))
 
-    print("endoing CelebA female for train dataset")
+    print("encoding CelebA female for train dataset")
     encoded = []
     for batch in tqdm(celeba_female_train_dataloader):
 
@@ -160,7 +160,7 @@ def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size
     encoded = torch.cat(encoded, dim=0)
     torch.save(encoded, os.path.join(saving_dir, "train_encoded_female.pt"))
 
-    print("endoing CelebA male for test dataset")
+    print("encoding CelebA male for test dataset")
     encoded = []
     for batch in tqdm(celeba_male_test_dataloader):
 
@@ -173,7 +173,7 @@ def vae_encode_celeba(vae_config_dir, vae_model_dir, celeba_data_dir, batch_size
     encoded = torch.cat(encoded, dim=0)
     torch.save(encoded, os.path.join(saving_dir, "test_encoded_male.pt"))
 
-    print("endoing CelebA female for test dataset")
+    print("encoding CelebA female for test dataset")
     encoded = []
     for batch in tqdm(celeba_female_test_dataloader):
 
