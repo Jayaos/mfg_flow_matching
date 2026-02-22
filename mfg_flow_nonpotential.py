@@ -179,7 +179,7 @@ def parse_arguments():
     # Plotting and output options
     parser.add_argument('--no-plot', action='store_true',
                         help='Disable plotting')
-    parser.add_argument('--save-plots', type=str, default=None,
+    parser.add_argument('--save-plots', type=str, default="./results/mfg_flow_nonpotential/",
                         help='Directory to save plots (if not specified, plots are displayed)')
     parser.add_argument('--n-resample', type=int, default=5000,
                         help='Number of particles for resampling')
