@@ -7,14 +7,14 @@ def parse_args():
 
     p = argparse.ArgumentParser()
 
-    p.add_argument("--vae_config_dir", type=str)
-    p.add_argument("--vae_model_dir", type=str)
-    p.add_argument("--shoes_data_dir", type=str)
-    p.add_argument("--bags_data_dir", type=str)
+    p.add_argument("--vae_config_dir", type=str, default="./vae_mfg_flow_matching/vae_shoebags_config.yaml")
+    p.add_argument("--vae_model_dir", type=str, default="./vae_mfg_flow_matching/vae_shoebags.ckpt")
+    p.add_argument("--shoes_data_dir", type=str, default="./data/shoes_64.hdf5")
+    p.add_argument("--bags_data_dir", type=str, default="./data/handbag_64.hdf5")
     p.add_argument("--train_ratio", type=float, default=0.8)
     p.add_argument("--seed", type=int, default=2025)
     p.add_argument("--batch_size", type=int, default=512)
-    p.add_argument("--saving_dir", type=str)
+    p.add_argument("--saving_dir", type=str, default="./data/")
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
 
     return p.parse_args()

@@ -61,7 +61,7 @@ def parse_args():
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
     p.add_argument("--epochs", type=int, default=50)
-    p.add_argument("--epoch_training_ratio", type=float, default=0.15)
+    p.add_argument("--epoch_training_ratio", type=float, default=0.13)
     p.add_argument("--ode_solver", type=str, default="rk4")       
     p.add_argument("--odeint_batch_size", type=int, default=2048)               
     p.add_argument("--num_timesteps", type=int, default=15)   
