@@ -95,9 +95,8 @@ They were saved under `./data/` directory.
 Running ```mfg_flow_shoebags.py``` implements our method on image-to-image transltaion of bags to shoes. Default hyperparameters were set to the paper's setup. Directories of the trained VAE, VAE config, raw data, and encoded data need to be specified as below. Details of the hyperparameters can be available in ```mfg_flow_shoebags.py```.
 
 ```
-python mfg_flow_shoebags.py --vae_config_dir ./vae_mfg_flow_matching/vae_shoebags_config.yaml --vae_model_dir ./vae_mfg_flow_matching/vae_shoebags.ckpt --shoes_dataset_dir ./shoes_64.hdf5 --bags_dataset_dir ./handbag_64.hdf5 --train_encoded_shoes_dir ./train_encoded_shoes.pt --train_encoded_bags_dir ./train_encoded_bags.pt --test_encoded_shoes_dir ./test_encoded_shoes.pt --test_encoded_bags_dir ./test_encoded_bags.pt
+python mfg_flow_shoebags.py
 ```
-
 
 
 #### CelebA male to female
