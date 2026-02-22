@@ -60,7 +60,9 @@ CelebA data can be downloaded from [here](https://mmlab.ie.cuhk.edu.hk/projects/
 
 Note that shoes, hangbags, and CelebA data should be located under `./data/` directory.
 
-To reproduce the experiment, the trained VAE also need to be downloaded from our [huggingface repository](https://huggingface.co/jayaos/vae_mfg_flow_matching):
+To reproduce the experiment, the trained VAE is required. VAEs should be trained following ["Taming Transformers for High-Resolution Image Synthesis"](https://arxiv.org/abs/2012.09841).
+
+For easier reproduce of the results, we provide the trained VAEs that can be downloaded downloaded from our [huggingface repository](https://huggingface.co/jayaos/vae_mfg_flow_matching):
 ```
 git clone https://huggingface.co/jayaos/vae_mfg_flow_matching
 ```
