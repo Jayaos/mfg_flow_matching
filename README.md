@@ -37,7 +37,7 @@ This will output particle trajectories before/after velocity field training at e
 Running ```mfg_flow_nonpotential.py``` will obtain the results and plots in the paper.
 
 ```
-python mfg_flow_nonpotential.py --save-plots 'directory to save plots'
+python mfg_flow_nonpotential.py
 ```
 
 Resulting plots will be saved under `./results/mfg_flow_nonpotential/`
