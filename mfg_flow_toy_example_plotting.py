@@ -38,6 +38,7 @@ if __name__ == "__main__":
     args = parse_args()
     args.model_dir = "./results/mfg_flow_toy_example/epoch_5/velocity_field_e5.pt"
     args.particle_trajectories_dir = "./results/mfg_flow_toy_example/epoch_5/optimized_particles_trajectories_e5.pt"
+    args.saving_dir = "./results/mfg_flow_toy_example/epoch_5/"
     
     plot_particle_trajectories_toy_example(args.model_dir,
                                            args.config_dir,
