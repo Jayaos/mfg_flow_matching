@@ -272,8 +272,8 @@ class MFGFlowImageConfig():
 class ShoebagsDatasetConfig():
 
     def __init__(self, 
-                 shoes_dataset_dir,
-                 bags_dataset_dir,
+                 shoes_data_dir,
+                 bags_data_dir,
                  train_encoded_shoes_dir,
                  train_encoded_bags_dir,
                  test_encoded_shoes_dir,
@@ -282,8 +282,8 @@ class ShoebagsDatasetConfig():
                  seed
                  ):
         
-        self.shoes_dataset_dir = shoes_dataset_dir
-        self.bags_dataset_dir = bags_dataset_dir
+        self.shoes_data_dir = shoes_data_dir
+        self.bags_data_dir = bags_data_dir
         self.train_encoded_shoes_dir = train_encoded_shoes_dir
         self.train_encoded_bags_dir = train_encoded_bags_dir
         self.test_encoded_shoes_dir = test_encoded_shoes_dir

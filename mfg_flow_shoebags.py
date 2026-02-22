@@ -14,17 +14,17 @@ def parse_args():
     p.add_argument("--saving_dir", type=str, default="./results/mfg_flow_shoebags/")
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--seed", type=int, default=2025)
-    p.add_argument("--vae_config_dir", type=str)
-    p.add_argument("--vae_model_dir", type=str)
+    p.add_argument("--vae_config_dir", type=str, default="./vae_mfg_flow_matching/vae_shoebags_config.yaml")
+    p.add_argument("--vae_model_dir", type=str, default="./vae_mfg_flow_matching/vae_shoebags.ckpt")
 
 
     # dataset
-    p.add_argument("--shoes_dataset_dir", type=str)
-    p.add_argument("--bags_dataset_dir", type=str)
-    p.add_argument("--train_encoded_shoes_dir", type=str)
-    p.add_argument("--train_encoded_bags_dir", type=str)
-    p.add_argument("--test_encoded_shoes_dir", type=str)
-    p.add_argument("--test_encoded_bags_dir", type=str)
+    p.add_argument("--shoes_data_dir", type=str, default="./data/shoes_64.hdf5")
+    p.add_argument("--bags_data_dir", type=str, default="./data/handbag_64.hdf5")
+    p.add_argument("--train_encoded_shoes_dir", type=str, default="./data/train_encoded_shoes.pt")
+    p.add_argument("--train_encoded_bags_dir", type=str, default="./data/train_encoded_bags.pt")
+    p.add_argument("--test_encoded_shoes_dir", type=str, default="./data/test_encoded_shoes.pt")
+    p.add_argument("--test_encoded_bags_dir", type=str,  default="./data/test_encoded_bags.pt")
     p.add_argument("--train_ratio", type=float, default=0.8)
 
 
@@ -75,8 +75,8 @@ if __name__ == "__main__":
     args = parse_args()
 
 
-    dataset_config = ShoebagsDatasetConfig(args.shoes_dataset_dir,
-                                           args.bags_dataset_dir,
+    dataset_config = ShoebagsDatasetConfig(args.shoes_data_dir,
+                                           args.bags_data_dir,
                                            args.train_encoded_shoes_dir,
                                            args.train_encoded_bags_dir,
                                            args.test_encoded_shoes_dir,

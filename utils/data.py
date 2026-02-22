@@ -100,11 +100,11 @@ def load_image_dataset(config, dataset_config):
                                                     augmentation=False)
         
         # load shoebags test dataset
-        p_test_dataset = Bags(dataset_config.bags_dataset_dir, 
+        p_test_dataset = Bags(dataset_config.bags_data_dir, 
                               dataset_config.train_ratio, 
                               dataset_config.seed, 
                               complement=True)
-        q_test_dataset = Shoes(dataset_config.shoes_dataset_dir, 
+        q_test_dataset = Shoes(dataset_config.shoes_data_dir, 
                                dataset_config.train_ratio, 
                                dataset_config.seed, 
                                complement=True)
