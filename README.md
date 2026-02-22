@@ -40,6 +40,8 @@ Running ```mfg_flow_nonpotential.py``` will obtain the results and plots in the 
 python mfg_flow_nonpotential.py --save-plots 'directory to save plots'
 ```
 
+Resulting plots will be saved under `./results/mfg_flow_nonpotential/`
+
 ### Image-to-image Translation
 
 Images of shoes and handbags can be downloaded from [here](http://efrosgans.eecs.berkeley.edu/iGAN/datasets/).
