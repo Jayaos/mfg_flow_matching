@@ -52,23 +52,20 @@ After unzipping, you should obtain the following files:
 
 CelebA data can be downloaded from [here](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
 
+Note that shoes, hangbags, and CelebA data should be located under `./data/` directory.
+
 To reproduce the experiment, the trained VAE also need to be downloaded from our [huggingface repository](https://huggingface.co/jayaos/vae_mfg_flow_matching):
 ```
 git clone https://huggingface.co/jayaos/vae_mfg_flow_matching
 ```
 
-You will see two VAE models with configuration files:
+You will see two VAE models with configuration files for each model:
 - `vae_shoebags.ckpt`
 - `vae_shoebags_config.yaml`
 - `vae_celeba.ckpt`
 - `vae_celeba_config.yaml`
 
 We need to encode images into the latent space using the trained VAE. To encode the images using VAE, run ```encode_shoebags.py``` and ```encode_celeba.py```.
-
-Or download from our [huggingface dataset repository](https://huggingface.co/datasets/jayaos/vae_encoded_mfg_flow_matching):
-```
-git clone https://huggingface.co/datasets/jayaos/vae_encoded_mfg_flow_matching
-```
 
 This will give encoded train and test images for image-to-image translation on bags to shoes:
 - `train_encoded_bags.pt`
@@ -81,6 +78,8 @@ and for CelebA male to female.
 - `train_encoded_female.pt`
 - `test_encoded_male.pt`
 - `test_encoded_female.pt`
+
+They were saved under `./data/` directory.
 
 
 #### Bags to shoes
