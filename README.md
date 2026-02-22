@@ -18,14 +18,18 @@ conda activate mfg_flow
 Running ```mfg_flow_toy_example.py``` will save models to the specified directory. The default hyperparameters setup will reproduct similar results in the paper. 
 
 ```
-python mfg_flow_toy_example.py --saving_dir 'directory to save'
+python mfg_flow_toy_example.py
 ```
 
-To plot trajectories, use ```mfg_flow_toy_example_plotting.py``` as:
+Results will be saved in `./results/mfg_flow_toy_example/`. 
+
+To plot trajectories, run ```mfg_flow_toy_example_plotting.py```:
 
 ```
-python mfg_flow_toy_example_plotting.py --model_dir '' --config_dir '' --particle_trajectories_dir '' --saving_dir ''
+python mfg_flow_toy_example_plotting.py
 ```
+
+This will output particle trajectories before/after velocity field training at epoch 1 and epoch 5. Each plot will be saved at `./results/mfg_flow_toy_example/epoch_1/particles_ode_trajectories_epoch_1.pdf` and `./results/mfg_flow_toy_example/epoch_5/particles_ode_trajectories_epoch_5.pdf`
 
 
 ### Non-potential MFG
