@@ -9,9 +9,9 @@ def parse_args():
 
     p.add_argument("--vae_config_dir", type=str, default="./vae_mfg_flow_matching/vae_celeba_config.yaml")
     p.add_argument("--vae_model_dir", type=str, default="./vae_mfg_flow_matching/vae_celeba.ckpt")
-    p.add_argument("--celeba_data_dir", type=str)
+    p.add_argument("--celeba_data_dir", type=str, default="./data/celeba/")
     p.add_argument("--batch_size", type=int, default=512)
-    p.add_argument("--saving_dir", type=str)
+    p.add_argument("--saving_dir", type=str, default="./data/")
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
 
     return p.parse_args()
