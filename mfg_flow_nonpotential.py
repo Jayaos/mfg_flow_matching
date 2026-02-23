@@ -8,12 +8,11 @@ from torchdiffeq import odeint
 from scipy.stats import gaussian_kde
 
 
-def run_asymker(num_outer_loop, particle_num, num_timestep, ode_solver,
+def run_mfg_nonpotential(num_outer_loop, particle_num, num_timestep, ode_solver,
                 particle_optimization_training_step, step_size, intermediate_update_frequency, 
                 hidden_dims, velocity_field_training_step, velocity_field_learning_rate,
                 mu_0, cov_matrix_0, a, lamb_F, mu_1, lamb_G):
     """
-    Run the asymker algorithm
     
     Args:
         num_outer_loop: Number of outer loop iterations
@@ -133,7 +132,6 @@ def run_asymker(num_outer_loop, particle_num, num_timestep, ode_solver,
 def parse_arguments():
     """Parse command-line arguments"""
     parser = argparse.ArgumentParser(
-        description='Run Asymker Algorithm',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     
@@ -192,7 +190,7 @@ def main():
     args = parse_arguments()
     
     print("=" * 60)
-    print("Asymker Algorithm - Standalone Execution")
+    print("Non-potential game with interaction cost defined by asymmetric kernel")
     print("=" * 60)
     print(f"\nParameters:")
     print(f"  K (outer loops): {args.K}")
@@ -218,9 +216,7 @@ def main():
     mu_1 = args.mu_1
     lamb_G = args.lamb_G
     
-    # Run asymker algorithm
-    print("Running Asymker algorithm...")
-    v, x, results = run_asymker(
+    v, x, results = run_mfg_nonpotential(
         args.K, args.n, args.m, args.ode_solver,
         args.particle_optim_steps, args.step_size, args.intermediate_update_freq,
         args.hidden_dims, args.vf_steps, args.vf_lr,
@@ -275,8 +271,8 @@ def main():
         plt.tight_layout()
         
         if args.save_plots:
-            plt.savefig(f"{args.save_plots}/asymker_traj.png", dpi=300, bbox_inches='tight')
-            print(f"  Saved: {args.save_plots}/asymker_traj.png")
+            plt.savefig(f"{args.save_plots}/trajectories.png", dpi=300, bbox_inches='tight')
+            print(f"  Saved: {args.save_plots}/trajectories.png")
         else:
             plt.show()
         plt.close()
@@ -291,8 +287,8 @@ def main():
         plt.tight_layout()
         
         if args.save_plots:
-            plt.savefig(f"{args.save_plots}/asymker_res.png", dpi=300, bbox_inches='tight')
-            print(f"  Saved: {args.save_plots}/asymker_res.png")
+            plt.savefig(f"{args.save_plots}/res.png", dpi=300, bbox_inches='tight')
+            print(f"  Saved: {args.save_plots}/res.png")
         else:
             plt.show()
         plt.close()
@@ -315,8 +311,8 @@ def main():
         
         plt.tight_layout()
         if args.save_plots:
-            plt.savefig(f"{args.save_plots}/asymker_density.png", dpi=300, bbox_inches='tight')
-            print(f"  Saved: {args.save_plots}/asymker_density.png")
+            plt.savefig(f"{args.save_plots}/density.png", dpi=300, bbox_inches='tight')
+            print(f"  Saved: {args.save_plots}/density.png")
         else:
             plt.show()
         plt.close()
