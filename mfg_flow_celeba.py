@@ -14,16 +14,16 @@ def parse_args():
     p.add_argument("--saving_dir", type=str, default="./results/mfg_flow_celeba/")
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--seed", type=int, default=2025)
-    p.add_argument("--vae_config_dir", type=str)
-    p.add_argument("--vae_model_dir", type=str)
+    p.add_argument("--vae_config_dir", type=str, default="./vae_mfg_flow_matching/vae_celeba_config.yaml")
+    p.add_argument("--vae_model_dir", type=str, default="./vae_mfg_flow_matching/vae_celeba.ckpt")
 
 
     # dataset
-    p.add_argument("--data_dir", type=str)
-    p.add_argument("--train_encoded_male_dir", type=str)
-    p.add_argument("--train_encoded_female_dir", type=str)
-    p.add_argument("--test_encoded_male_dir", type=str)
-    p.add_argument("--test_encoded_female_dir", type=str)
+    p.add_argument("--data_dir", type=str, default="./data/celeba/")
+    p.add_argument("--train_encoded_male_dir", type=str, default="./data/train_encoded_male.pt")
+    p.add_argument("--train_encoded_female_dir", type=str, default="./data/train_encoded_female.pt")
+    p.add_argument("--test_encoded_male_dir", type=str, default="./data/test_encoded_male.pt")
+    p.add_argument("--test_encoded_female_dir", type=str, default="./data/test_encoded_female.pt")
     p.add_argument("--train_ratio", type=float, default=0.8)
     
 
