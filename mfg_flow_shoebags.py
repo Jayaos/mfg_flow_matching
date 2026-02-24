@@ -1,7 +1,7 @@
 from src_run.run_imgtranslation import run_mfg_flow_image
 from config import ShoebagsDatasetConfig, MFGFlowImageConfig
 import torch
-
+import sys
 import argparse
 
 
@@ -71,6 +71,10 @@ def parse_args():
 
 
 if __name__ == "__main__":
+    print("python:", sys.version)
+    print("torch:", torch.__version__)
+    print("cuda available:", torch.cuda.is_available())
+
     
     args = parse_args()
 
