@@ -97,7 +97,7 @@ def run_mfg_nonpotential(num_outer_loop, particle_num, num_timestep, ode_solver,
                 if j == 0:
                     grad_mat = torch.cat([grad_int, grad_term.unsqueeze(1)], dim=1)
                     res = torch.norm(grad_mat, dim=(1,2)).mean()
-                # print("res : {}".format(res))
+    
                 residuals_particle_optimization.append(res)
 
                 if (j+1) % intermediate_update_frequency == 0:
@@ -106,6 +106,7 @@ def run_mfg_nonpotential(num_outer_loop, particle_num, num_timestep, ode_solver,
                     mean_exp_term = torch.mean(exp_term, dim=0) # (num_timestep-1, )
 
         residuals.append(np.mean(residuals_particle_optimization))
+        print("avg residual at outer loop {}: {}".format(k+1, np.mean(residuals_particle_optimization)))
 
         # update velocity field
         loss_sum = 0.
