@@ -48,7 +48,7 @@ def run_mfg_nonpotential(num_outer_loop, particle_num, num_timestep, ode_solver,
 
     for k in range(num_outer_loop):
 
-        # print("outer loop {}".format(k+1))
+        print("outer loop {}".format(k+1))
         x_init = initial_gaussian_dist.sample([particle_num]) # (particle_num, dim)
         if k == 0:
             # initialization of trajectory: zero velocity field
@@ -108,14 +108,17 @@ def run_mfg_nonpotential(num_outer_loop, particle_num, num_timestep, ode_solver,
         residuals.append(np.mean(residuals_particle_optimization))
 
         # update velocity field
+        loss_sum = 0.
         for _ in range(velocity_field_training_step):
 
             loss = vf_loss_fn(velocity_field, x_trajectory, timesteps, delta_t)
             vf_optim.zero_grad()
             loss["loss"].backward()
             vf_optim.step()
+            loss_sum += loss["loss"].item()
 
-        # print("vf loss: {}".format(loss["loss"].item()))
+        print("avg vf loss at outer loop {}: {}".format(k+1, loss_sum/velocity_field_training_step))
+
         with torch.no_grad():
             x_trajectory_final = odeint(velocity_field, x_trajectory[:,0,:], timesteps, method=ode_solver)
         x_trajectory_final = x_trajectory_final.permute(1,0,2) # (particle_num, num_timestep)
