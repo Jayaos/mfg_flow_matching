@@ -92,7 +92,7 @@ They were saved under `./data/` directory.
 
 #### Bags to shoes
 
-Running ```mfg_flow_shoebags.py``` implements our method on image-to-image transltaion of bags to shoes. Default hyperparameters were set to the paper's setup. Directories of the trained VAE, VAE config, raw data, and encoded data need to be specified as below. Details of the hyperparameters can be available in ```mfg_flow_shoebags.py```.
+Running ```mfg_flow_shoebags.py``` implements our method on image-to-image transltaion of bags to shoes. Default hyperparameters were set to the paper's setup. Details of the hyperparameters can be available in ```mfg_flow_shoebags.py```.
 
 ```
 python mfg_flow_shoebags.py
@@ -101,10 +101,10 @@ python mfg_flow_shoebags.py
 
 #### CelebA male to female
 
-Running ```mfg_flow_celeba.py``` implements our method on image-to-image transltaion of CelebA male to female. Default hyperparameters were set to the paper's setup. Directories of the trained VAE, VAE config, raw data, and encoded data need to be specified as below. Details of the hyperparameters can be available in ```mfg_flow_celeba.py```.
+Running ```mfg_flow_celeba.py``` implements our method on image-to-image transltaion of CelebA male to female. Default hyperparameters were set to the paper's setup. Details of the hyperparameters can be available in ```mfg_flow_celeba.py```.
 
 ```
-python mfg_flow_celeba.py --vae_config_dir ./vae_mfg_flow_matching/vae_celeba_config.yaml --vae_model_dir ./vae_mfg_flow_matching/vae_celeba.ckpt --data_dir ./celeba/ --train_encoded_male_dir ./train_encoded_male.pt --train_encoded_female_dir ./train_encoded_female.pt --test_encoded_male_dir ./test_encoded_male.pt --test_encoded_female_dir ./test_encoded_female.pt
+python mfg_flow_celeba.py
 ```
 
 

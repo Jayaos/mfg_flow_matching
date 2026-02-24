@@ -75,7 +75,6 @@ if __name__ == "__main__":
     print("torch:", torch.__version__)
     print("cuda available:", torch.cuda.is_available())
 
-    
     args = parse_args()
 
 
