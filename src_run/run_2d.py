@@ -111,7 +111,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                 X_bar = initialize_linear_interpolant(p_training, timesteps)
                 # initial Xbar is just linear interpolant of p and q based on time steps
 
-            classifier_optimization_pbar = tqdm(total=config.initial_classifier_training_step, 
+            classifier_optimization_pbar = tqdm(total=config.classifier_initial_steps, 
                                                 desc="Initial Classifier Training Steps")
             p_1_training = X_bar[-1, :, :].detach() # (data_size, dim), endpoint of linear interpolant
             classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training), 
