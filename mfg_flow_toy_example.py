@@ -31,7 +31,7 @@ def parse_args():
     p.add_argument("--classifier_learning_rate", type=float, default=.001)
     p.add_argument("--classifier_minibatch", type=int, default=256)
     p.add_argument("--classifier_initial_steps", type=int, default=100)
-    p.add_argument("--cost_update_frequency", type=int, default=40)
+    p.add_argument("--cost_update_frequency", type=int, default=10)
     p.add_argument("--classifier_retrain_steps", type=int, default=20)
 
     p.add_argument("--vf_initialization", type=str, default=None)
@@ -42,7 +42,7 @@ def parse_args():
 
     p.add_argument("--particle_learning_rate", type=float, default=.001)  
     p.add_argument("--particle_minibatch", type=int, default=256)
-    p.add_argument("--particle_loop", type=int, default=10000)        
+    p.add_argument("--particle_loop", type=int, default=500)        
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
 
