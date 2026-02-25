@@ -22,58 +22,62 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
     save_data(config.saving_dir + "q_dataset_config.pkl", q_dataset_config)
     save_data(config.saving_dir + "mfg_flow_config.pkl", config)
 
-    timesteps = torch.linspace(0, 1, config.num_timesteps)
-    timestep_size = 1/(config.num_timesteps-1)
+    p_training, p_test = generate_toy_data(p_dataset_config, config.seed)
+    q_training, q_test = generate_toy_data(q_dataset_config, config.seed)
+
+    outer_loop_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training, q_training), 
+                                                          batch_size=config.outer_batch, 
+                                                          shuffle=True, 
+                                                          drop_last=True))
+    
+    timesteps = torch.linspace(0, 1, config.ode_timesteps)
+    timestep_size = 1/(config.ode_timesteps-1)
     input_dim = 2
 
     # initialize model
     classifier = MLPClassifier(input_dim, config.classifier_hidden_dims, activation=config.classifier_activation).to(device)
     velocity_field = MLPVelocityField(input_dim, 
                                       1, # time dim = 1
-                                      config.velocity_field_hidden_dims, 
-                                      config.velocity_field_layer_type,
-                                      config.velocity_field_activation).to(device)
+                                      config.vf_hidden_dims, 
+                                      config.vf_layer_type,
+                                      config.vf_activation).to(device)
     classifier_optim = torch.optim.Adam(classifier.parameters(), lr=config.classifier_learning_rate)
-    vf_optim = torch.optim.Adam(velocity_field.parameters(), lr=config.velocity_field_learning_rate)
+    vf_optim = torch.optim.Adam(velocity_field.parameters(), lr=config.vf_learning_rate)
     initial_classifier_loss_record = []
     loss_record = dict()
-    initial_seed = config.seed
 
-    mfgflow_training_pbar = tqdm(total=config.epochs, 
-                                 desc="MFG-Flow Training Epochs")
+    outer_loop_pbar = tqdm(total=config.outer_loop, 
+                           desc="MFG-Flow Training Outer Loop")
 
-    for i in range(config.epochs):
+    for i in range(config.outer_loop):
 
-        epoch_saving_dir = os.path.join(config.saving_dir, "epoch_{}".format(i+1))
-        os.makedirs(epoch_saving_dir, exist_ok=True)
+        loop_saving_dir = os.path.join(config.saving_dir, "loop_{}".format(i+1))
+        os.makedirs(loop_saving_dir, exist_ok=True)
 
-        # generate data for training
-        p_training, _ = generate_toy_data(p_dataset_config, initial_seed)
-        q_training, _ = generate_toy_data(q_dataset_config, initial_seed)
-        initial_seed += 1
+        p_training, q_training = next(outer_loop_dataloader)
 
         if i == 0:
 
-            if config.velocity_field_initialization:
-                print("Initialize particle trajectories with flow matching on linear interpolant at the first epoch")
+            if config.vf_initialization:
+                print("Initialize particle trajectories with flow matching on linear interpolant at the first loop")
 
                 vf_init_optim = torch.optim.Adam(velocity_field.parameters(), 
-                                                 lr=config.particle_optimization_learning_rate)
+                                                 lr=config.particle_learning_rate)
                 vf_init_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training, q_training), 
-                                                                   batch_size=config.velocity_field_training_batch_size, 
+                                                                   batch_size=config.vf_minibatch, 
                                                                    shuffle=True))
-                vf_init_pbar = tqdm(total=config.velocity_field_initialization_training_step, 
+                vf_init_pbar = tqdm(total=config.vf_initial_steps, 
                                     desc="Velocity Fields Initialization")
                 
-                if config.velocity_field_initialization in ["interflow", "stochastic-interpolant"]:
+                if config.vf_initialization in ["interflow", "stochastic-interpolant"]:
                     flow_matcher = VariancePreservingConditionalFlowMatcher(sigma=0.1)
-                elif config.velocity_field_initialization in ["conditional-flow-matching"]:
+                elif config.vf_initialization in ["conditional-flow-matching"]:
                     flow_matcher = ConditionalFlowMatcher(sigma=0.1)
-                elif config.velocity_field_initialization in ["linear-flow-matching"]:
+                elif config.vf_initialization in ["linear-flow-matching"]:
                     flow_matcher = LinearFlowMatcher()
 
                 for p_batch, q_batch in vf_init_dataloader:
-                    if vf_init_dataloader.step <= config.velocity_field_initialization_training_step:
+                    if vf_init_dataloader.step <= config.vf_initial_steps:
                         
                         t_batch, xt_batch, ut_batch = flow_matcher.sample_location_and_conditional_flow(p_batch,
                                                                                                         q_batch)
@@ -90,11 +94,11 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                         break
 
                 with torch.no_grad():  # Don't track gradients for ODE solving
-                    if config.odeint_batch_size:
+                    if config.odeint_minibatch:
                         X_bar = batched_odeint(velocity_field, 
                                                p_training, 
                                                timesteps,
-                                               config.odeint_batch_size,
+                                               config.odeint_minibatch,
                                                ode_solver=config.ode_solver,
                                                device=device)
                     else:
@@ -102,7 +106,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                     # (len(timesteps), training_size, dim)
 
             else:
-                print("Initialize particle trajectories with linear interpolant at the first epoch")
+                print("Initialize particle trajectories with linear interpolant")
                 # X_bar: (len(timesteps), data_size, dim)
                 X_bar = initialize_linear_interpolant(p_training, timesteps)
                 # initial Xbar is just linear interpolant of p and q based on time steps
@@ -111,13 +115,13 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                                                 desc="Initial Classifier Training Steps")
             p_1_training = X_bar[-1, :, :].detach() # (data_size, dim), endpoint of linear interpolant
             classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training), 
-                                                                  batch_size=config.classifier_training_batch_size, 
+                                                                  batch_size=config.classifier_minibatch, 
                                                                   shuffle=True))
 
             for x_p1, x_q in classifier_dataloader:
                 x_p1 = x_p1.to(device)
                 x_q = x_q.to(device)
-                if classifier_dataloader.step <= config.initial_classifier_training_step:
+                if classifier_dataloader.step <= config.classifier_initial_steps:
                     classifier_loss = classifier_loss_fn(classifier, x_p1, x_q)
                     classifier_optim.zero_grad()
                     classifier_loss["loss"].backward()
@@ -125,22 +129,19 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                     initial_classifier_loss_record.append(classifier_loss["loss"].item())
                     classifier_optimization_pbar.update(1)
                 else:
-                    # config.initial_classifier_training_step reached break the for loop
+                    # config.classifier_initial_steps reached break the for loop
                     break
 
         else:
             # if its not the first epoch, Xbar is trajectory obtained by solving ODE
-            ## TODO: potentially using ODESolver class is ideal
-            # ode_solver = ODESolver(velocity_field)
-            # X_bar = ode_solver.sample()
-            print("Obtaining particle trajectories by solving ODE using {}".format(config.ode_solver))
+            print("Obtaining particle trajectories by solving ODE")
 
             with torch.no_grad():  # Don't track gradients for ODE solving
-                if config.odeint_batch_size:
+                if config.odeint_minibatch:
                     X_bar = batched_odeint(velocity_field, 
                                            p_training, 
                                            timesteps,
-                                           config.odeint_batch_size,
+                                           config.odeint_minibatch,
                                            ode_solver=config.ode_solver,
                                            device=device)
                 else:
@@ -151,101 +152,32 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
         ## before particle optimization, generate X_bar through initialization or solving ODE first
         ## and then batchify them, since batchfiy > solving ODE is more time consuming
 
-        torch.save(X_bar.transpose(1,0), os.path.join(epoch_saving_dir, 
-                                                      'pre_optimized_particles_trajectories_e{}.pt'.format(i+1)))
+        torch.save(X_bar.transpose(1,0), os.path.join(loop_saving_dir, 
+                                                      'pre_optimized_particles_trajectories_l{}.pt'.format(i+1)))
 
         # Prepare trajectory variables
         particle_0 = X_bar[0].clone().detach().unsqueeze(0).to(device) # (1, data_size, dim)
         particle_trajectory = X_bar[1:].clone().detach().to(device) # (num_timesteps - 1, data_size, dim)
         particle_trajectory.requires_grad_(True)
-        particle_optim = torch.optim.Adam([particle_trajectory], lr=config.particle_optimization_learning_rate)
-
-        if i == 0:
-            particle_optimization_epoch = config.initial_particle_optimization_epoch
-        else:
-            particle_optimization_epoch = config.particle_optimization_epoch
+        particle_optim = torch.optim.Adam([particle_trajectory], lr=config.particle_learning_rate)
 
         kinetic_loss_record = []
         classifier_loss_record = []
         particle_optimization_loss_record = []
+        intermediate_classifier_loss_record = []
+        particle_dataloader = DataLoaderIterator(TrajectoryDataLoader(particle_0, 
+                                                                      particle_trajectory,
+                                                                      batch_size=config.particle_minibatch, 
+                                                                      shuffle=True))
+            
+        for particle_0_batch, particle_trajectory_batch in particle_dataloader:
 
-        if config.particle_optimization_batch_size:
-            # batch optimization of particle trajectory
-
-            particle_dataloader = TrajectoryDataLoader(particle_0, 
-                                                       particle_trajectory,
-                                                       batch_size=config.particle_optimization_batch_size, 
-                                                       shuffle=True)
-            particle_dataloader_size = len(particle_dataloader)
-            particle_optimization_pbar = tqdm(total=particle_optimization_epoch, 
-                                            desc="Particle Opimization Epochs")
-            intermediate_classifier_loss_record = []
+            if particle_dataloader.step <= config.particle_steps:
                 
-            for e in tqdm(range(particle_optimization_epoch)):
-                
-                kinetic_loss_sum = 0.
-                classifier_loss_sum = 0.
-                particle_optimization_loss_sum = 0.
-
-                for particle_0_batch, particle_trajectory_batch in tqdm(particle_dataloader, 
-                                                                    total=len(particle_dataloader), 
-                                                                    desc=f"Epoch {e+1}/{particle_optimization_epoch}"):
-
-                    particle_optimization_loss = particle_optimization_loss_fn(particle_0_batch, 
+                particle_optimization_loss = particle_optimization_loss_fn(particle_0_batch, 
                                                                             particle_trajectory_batch,
                                                                             classifier,
                                                                             kinetic_loss_weight=config.kinetic_loss_weight)
-                    particle_optim.zero_grad()
-                    particle_optimization_loss["loss"].backward()
-                    particle_optim.step()
-
-                    kinetic_loss_sum += particle_optimization_loss["kinetic_loss"].detach().cpu().item()
-                    classifier_loss_sum += particle_optimization_loss["classifier_loss"].detach().cpu().item()
-                    particle_optimization_loss_sum += particle_optimization_loss["loss"].detach().cpu().item()
-
-                kinetic_loss_record.append(kinetic_loss_sum / particle_dataloader_size)
-                classifier_loss_record.append(classifier_loss_sum / particle_dataloader_size)
-                particle_optimization_loss_record.append(particle_optimization_loss_sum / particle_dataloader_size)
-
-                # Update classifier every freq_update epochs
-                if (e + 1) % config.classifier_intermediate_training_frequency == 0:
-
-                    print("Intermediate Classifier Training at Particle Optimization Epoch {}...".format(e+1))
-
-                    p_1_training = particle_trajectory[-1, :, :].clone().detach() # (data_size, dim)
-                    classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training), 
-                                                                        batch_size=config.classifier_training_batch_size, 
-                                                                        shuffle=True))
-                    for x_p, x_q in classifier_dataloader:
-                        x_p = x_p.to(device)
-                        x_q = x_q.to(device)
-                        if classifier_dataloader.step <= config.intermediate_classifier_training_step:
-                            classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
-                            classifier_optim.zero_grad()
-                            classifier_loss["loss"].backward()
-                            classifier_optim.step()
-                            intermediate_classifier_loss_record.append(classifier_loss["loss"].item())
-                        else:
-                            break
-
-                particle_optimization_pbar.update(1)
-
-        else:
-            # entire trajectory optimization in one epoch
-
-            particle_optimization_pbar = tqdm(total=particle_optimization_epoch, 
-                                              desc="Particle Opimization Epochs")
-            intermediate_classifier_loss_record = []
-
-            for e in tqdm(range(particle_optimization_epoch)):
-                
-                kinetic_loss_sum = 0.
-                classifier_loss_sum = 0.
-                particle_optimization_loss_sum = 0.
-                particle_optimization_loss = particle_optimization_loss_fn(particle_0,  
-                                                                           particle_trajectory, 
-                                                                           classifier,
-                                                                           kinetic_loss_weight=config.kinetic_loss_weight)
                 particle_optim.zero_grad()
                 particle_optimization_loss["loss"].backward()
                 particle_optim.step()
@@ -254,51 +186,43 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                 classifier_loss_record.append(particle_optimization_loss["classifier_loss"].detach().cpu().item())
                 particle_optimization_loss_record.append(particle_optimization_loss["loss"].detach().cpu().item())
 
-                # Update classifier every freq_update epochs
-                if (e + 1) % config.classifier_intermediate_training_frequency == 0:
-
-                    print("Intermediate Classifier Training at Particle Optimization Epoch {}...".format(e+1))
+                if particle_dataloader.step % config.cost_update_frequency == 0:
 
                     p_1_training = particle_trajectory[-1, :, :].clone().detach() # (data_size, dim)
                     classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training), 
-                                                                        batch_size=config.classifier_training_batch_size, 
+                                                                        batch_size=config.classifier_minibatch, 
                                                                         shuffle=True))
                     for x_p, x_q in classifier_dataloader:
-                        x_p = x_p.to(device)
-                        x_q = x_q.to(device)
-                        if classifier_dataloader.step <= config.intermediate_classifier_training_step:
-                            classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
-                            classifier_optim.zero_grad()
-                            classifier_loss["loss"].backward()
-                            classifier_optim.step()
-                            intermediate_classifier_loss_record.append(classifier_loss["loss"].item())
-                        else:
-                            break
+                            x_p = x_p.to(device)
+                            x_q = x_q.to(device)
+                            if classifier_dataloader.step <= config.classifier_retrain_steps:
+                                classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
+                                classifier_optim.zero_grad()
+                                classifier_loss["loss"].backward()
+                                classifier_optim.step()
+                                intermediate_classifier_loss_record.append(classifier_loss["loss"].item())
+                            else:
+                                break
 
-                particle_optimization_pbar.update(1)
+            else:
+                break
 
         # this is updated particle trajectory
         X_bar = torch.cat([particle_0.detach().cpu(), particle_trajectory.detach().cpu()], dim=0) # (len(timesteps), training_size, dim)
         X_bar = X_bar.transpose(1,0) # (training_size, len(timesteps), channel, h, w)
 
-        if i == 0:
-            # at the first epoch, train velocity field more as warm-up
-            velocity_field_training_step = config.initial_velocity_field_training_step
-        else:
-            velocity_field_training_step = config.velocity_field_training_step
-
         vf_dataloader = DataLoaderIterator(DataLoader(TensorDataset(X_bar), 
-                                            batch_size=config.velocity_field_training_batch_size, 
+                                            batch_size=config.vf_minibatch, 
                                             shuffle=True))
         
         vf_loss_record = []
-        vf_pbar = tqdm(total=velocity_field_training_step,
+        vf_pbar = tqdm(total=config.vf_steps,
                        desc="Velocity Field Training Steps")
         
         for x_traj_batch in vf_dataloader:
             
             # x_traj_batch is a tuple so x_traj_batch[0] is needed
-            if vf_dataloader.step <= velocity_field_training_step:
+            if vf_dataloader.step <= config.vf_steps:
                 # (batch_size, len(timesteps), dim)
                 vf_loss = vf_loss_fn(velocity_field, 
                                      x_traj_batch[0].to(device), 
@@ -311,28 +235,24 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                 vf_pbar.update(1)
             else:
                 break
-        
-        # generate test data
-        _ , p_test = generate_toy_data(p_dataset_config, config.seed) # use same seed across epoch
-        _ , q_test = generate_toy_data(q_dataset_config, config.seed) # use same seed across epoch
 
         # trajectory plot
         plot_2d_ode_trajectories(velocity_field, 
                                  p_test, q_test, 
-                                 config.num_timesteps, 
+                                 config.ode_timesteps, 
                                  8, 200, "rk4", 2048, 
                                  device=device, 
-                                 saving=epoch_saving_dir)
+                                 saving=loop_saving_dir)
 
         # test path energy
         path_energy = compute_path_energy(velocity_field, 
                                           p_test, 
-                                          config.num_timesteps,
-                                          config.odeint_batch_size,
+                                          config.ode_timesteps,
+                                          config.odeint_minibatch,
                                           config.ode_solver,
                                           device=device)
         print("path energy at epoch {}: {}".format(i+1, path_energy))
-        mfgflow_training_pbar.update(1)
+        outer_loop_pbar.update(1)
 
         if i == 0:
             loss_record[i] = {"kinetic_loss_record" : kinetic_loss_record,
@@ -351,7 +271,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                               "path_energy" : path_energy}
             
         save_data(config.saving_dir + "loss_record.pkl", loss_record)
-        torch.save(X_bar, os.path.join(epoch_saving_dir, 'optimized_particles_trajectories_e{}.pt'.format(i+1)))
-        torch.save(classifier.state_dict(), os.path.join(epoch_saving_dir, 'classifier_e{}.pt'.format(i+1)))
-        torch.save(velocity_field.state_dict(), os.path.join(epoch_saving_dir, 'velocity_field_e{}.pt'.format(i+1)))
+        torch.save(X_bar, os.path.join(loop_saving_dir, 'optimized_particles_trajectories_l{}.pt'.format(i+1)))
+        torch.save(classifier.state_dict(), os.path.join(loop_saving_dir, 'classifier_l{}.pt'.format(i+1)))
+        torch.save(velocity_field.state_dict(), os.path.join(loop_saving_dir, 'velocity_field_l{}.pt'.format(i+1)))
     

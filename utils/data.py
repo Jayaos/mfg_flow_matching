@@ -35,6 +35,7 @@ def generate_checkerboard_2d(data_size, img_dir, seed=None):
         probs = img.reshape(-1) / img.sum()
         std = np.array([8 / w / 2, 8 / h / 2])
         full_data = sample_data(train_data_size)
+        
         return torch.from_numpy(full_data).to(dtype=torch.float32)
 
     image_mask = np.array(Image.open(img_dir).rotate(180).transpose(Image.FLIP_LEFT_RIGHT).convert('L'))
