@@ -154,9 +154,9 @@ def plot_particle_trajectories_toy_example(model_dir,
     velocity_field = MLPVelocityField(
         2,
         1,  # time dim = 1
-        config.velocity_field_hidden_dims,
-        config.velocity_field_layer_type,
-        config.velocity_field_activation,
+        config.vf_hidden_dims,
+        config.vf_layer_type,
+        config.vf_activation,
     )
     velocity_field.load_state_dict(torch.load(model_dir, map_location=torch.device("cpu")))
 
