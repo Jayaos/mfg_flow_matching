@@ -251,7 +251,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                                           config.odeint_minibatch,
                                           config.ode_solver,
                                           device=device)
-        print("path energy at epoch {}: {}".format(i+1, path_energy))
+        #print("path energy at epoch {}: {}".format(i+1, path_energy))
         outer_loop_pbar.update(1)
 
         if i == 0:
