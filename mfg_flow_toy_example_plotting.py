@@ -14,7 +14,7 @@ def parse_args():
     p.add_argument("--num_selection", type=int, default=30)
     p.add_argument("--ode_solver", type=str, default="rk4")
     p.add_argument("--sample_size", type=int, default=20000)
-    p.add_argument("--seed", type=int, default=2026)
+    p.add_argument("--seed", type=int, default=2025)
     p.add_argument("--saving_dir", type=str, default="./results/mfg_flow_toy_example/loop_1/")
 
     return p.parse_args()
