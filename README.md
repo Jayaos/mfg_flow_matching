@@ -29,7 +29,7 @@ To plot trajectories, run ```mfg_flow_toy_example_plotting.py```:
 python mfg_flow_toy_example_plotting.py
 ```
 
-This will output particle trajectories before/after velocity field training at epoch 1 and epoch 5. Each plot will be saved at `./results/mfg_flow_toy_example/epoch_1/particles_ode_trajectories_epoch_1.pdf` and `./results/mfg_flow_toy_example/epoch_5/particles_ode_trajectories_epoch_5.pdf`
+This will output particle trajectories before/after velocity field training at outer loop 1 and 10. Each plot will be saved at `./results/mfg_flow_toy_example/loop_1/particles_ode_trajectories_loop_1.pdf` and `./results/mfg_flow_toy_example/loop_10/particles_ode_trajectories_loop_10.pdf`
 
 
 ### Non-potential MFG
