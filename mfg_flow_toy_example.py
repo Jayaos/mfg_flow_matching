@@ -42,7 +42,7 @@ def parse_args():
 
     p.add_argument("--particle_learning_rate", type=float, default=.001)  
     p.add_argument("--particle_minibatch", type=int, default=256)
-    p.add_argument("--particle_steps", type=int, default=200)        
+    p.add_argument("--particle_steps", type=int, default=10000)        
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
 
