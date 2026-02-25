@@ -270,14 +270,14 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
             loss_record[i] = {"kinetic_loss_record" : kinetic_loss_record,
                               "initial_classifier_loss_record" : initial_classifier_loss_record,
                               "classifier_loss_record" : classifier_loss_record,
-                              "intermediate_classifier_loss_record" : intermediate_classifier_loss_record,
+                              "classifier_retrain_loss_record" : classifier_retrain_loss_record,
                               "particle_optimization_loss_record" : particle_optimization_loss_record,
                               "vf_loss_record" : vf_loss_record,
                               "path_energy" : path_energy}
         else:                
             loss_record[i] = {"kinetic_loss_record" : kinetic_loss_record,
                               "classifier_loss_record" : classifier_loss_record,
-                              "intermediate_classifier_loss_record" : intermediate_classifier_loss_record,
+                              "classifier_retrain_loss_record" : classifier_retrain_loss_record,
                               "particle_optimization_loss_record" : particle_optimization_loss_record,
                               "vf_loss_record" : vf_loss_record,
                               "path_energy" : path_energy}
