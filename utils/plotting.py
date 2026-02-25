@@ -322,13 +322,12 @@ def plot_2d_ode_trajectories(velocity_field, p, q, num_timesteps, num_plots, num
         ax_forward[i].set_title(f'$t={timesteps[idx[i]]:.2f}$', fontsize=18)
 
     fig_forward.tight_layout()
-    plt.show()
 
     if saving:
         fig_forward.savefig(os.path.join(saving, "ode_trajectories_forward.pdf"),
                             dpi=300, bbox_inches="tight")
-        
-    plt.close(fig_forward)
+    else:
+        plt.show()
 
     # Backward plots
     fig_backward, ax_backward = plt.subplots(1, max_plot, figsize=(max_plot * 3, 3), sharex=True, sharey=True)
@@ -339,13 +338,12 @@ def plot_2d_ode_trajectories(velocity_field, p, q, num_timesteps, num_plots, num
         ax_backward[i].set_title(f'$t={timesteps[num_timesteps-1-idx[i]]:.2f}$', fontsize=18)
 
     fig_backward.tight_layout()
-    plt.show()
 
     if saving:
         fig_backward.savefig(os.path.join(saving, "ode_trajectories_backward.pdf"),
                             dpi=300, bbox_inches="tight")
-    
-    plt.close(fig_backward)
+    else:
+        plt.show()
     
 
 def display_multiple_images(images, rows, cols, figsize=1, titles=None, fontsize=14, saving=None):

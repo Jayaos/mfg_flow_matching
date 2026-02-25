@@ -42,7 +42,7 @@ def parse_args():
 
     p.add_argument("--particle_learning_rate", type=float, default=.001)  
     p.add_argument("--particle_minibatch", type=int, default=256)
-    p.add_argument("--particle_steps", type=int, default=10000)        
+    p.add_argument("--particle_loop", type=int, default=10000)        
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
 
@@ -84,21 +84,21 @@ if __name__ == "__main__":
 
                                     particle_learning_rate=args.particle_learning_rate,
                                     particle_minibatch=args.particle_minibatch,
-                                    particle_steps=args.particle_steps,
+                                    particle_loop=args.particle_loop,
                                     kinetic_loss_weight=args.kinetic_loss_weight,
                                     classifier_loss_weight=args.classifier_loss_weight)
     
-        
-    p_dataset_config = ToyDatasetConfig("Gaussian", 
-                                        None,
-                                        args.n_train,
-                                        args.n_test)
     
-
-    q_dataset_config = ToyDatasetConfig("checkerboard-2d",
+    p_dataset_config = ToyDatasetConfig("checkerboard-2d",
                                         os.path.join(args.data_dir, "img_checkerboard_4x4.png"),
                                         args.n_train,
                                         args.n_test)
     
+        
+    q_dataset_config = ToyDatasetConfig("Gaussian", 
+                                        None,
+                                        args.n_train,
+                                        args.n_test)
+ 
 
     run_mfg_flow_toy_example(config, p_dataset_config, q_dataset_config, device=args.device)

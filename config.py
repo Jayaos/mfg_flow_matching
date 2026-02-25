@@ -35,7 +35,7 @@ class MFGFlowToyExampleConfig:
 
         particle_learning_rate,
         particle_minibatch,
-        particle_steps,
+        particle_loop,
 
         kinetic_loss_weight,
         classifier_loss_weight,):
@@ -74,7 +74,7 @@ class MFGFlowToyExampleConfig:
 
         self.particle_learning_rate = particle_learning_rate
         self.particle_minibatch = particle_minibatch
-        self.particle_steps = particle_steps
+        self.particle_loop = particle_loop
 
         self.kinetic_loss_weight = kinetic_loss_weight
         self.classifier_loss_weight = classifier_loss_weight

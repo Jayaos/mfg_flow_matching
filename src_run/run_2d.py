@@ -164,48 +164,60 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
         kinetic_loss_record = []
         classifier_loss_record = []
         particle_optimization_loss_record = []
-        intermediate_classifier_loss_record = []
-        particle_dataloader = DataLoaderIterator(TrajectoryDataLoader(particle_0, 
-                                                                      particle_trajectory,
-                                                                      batch_size=config.particle_minibatch, 
-                                                                      shuffle=True))
-            
-        for particle_0_batch, particle_trajectory_batch in particle_dataloader:
+        classifier_retrain_loss_record = []
 
-            if particle_dataloader.step <= config.particle_steps:
-                
+        particle_dataloader = TrajectoryDataLoader(particle_0, 
+                                                   particle_trajectory,
+                                                   batch_size=config.particle_minibatch, 
+                                                   shuffle=True)
+        particle_dataloader_size = len(particle_dataloader)
+        particle_optimization_pbar = tqdm(total=config.particle_loop, desc="Particle Opimization Loop")
+
+        for e in tqdm(range(config.particle_loop)):
+            
+            kinetic_loss_sum = 0.
+            classifier_loss_sum = 0.
+            particle_optimization_loss_sum = 0.
+
+            for particle_0_batch, particle_trajectory_batch in particle_dataloader:
+
                 particle_optimization_loss = particle_optimization_loss_fn(particle_0_batch, 
-                                                                            particle_trajectory_batch,
-                                                                            classifier,
-                                                                            kinetic_loss_weight=config.kinetic_loss_weight)
+                                                                           particle_trajectory_batch,
+                                                                           classifier,
+                                                                           kinetic_loss_weight=config.kinetic_loss_weight)
                 particle_optim.zero_grad()
                 particle_optimization_loss["loss"].backward()
                 particle_optim.step()
 
-                kinetic_loss_record.append(particle_optimization_loss["kinetic_loss"].detach().cpu().item())
-                classifier_loss_record.append(particle_optimization_loss["classifier_loss"].detach().cpu().item())
-                particle_optimization_loss_record.append(particle_optimization_loss["loss"].detach().cpu().item())
+                kinetic_loss_sum += particle_optimization_loss["kinetic_loss"].item()
+                classifier_loss_sum += particle_optimization_loss["classifier_loss"].item()
+                particle_optimization_loss_sum += particle_optimization_loss["loss"].item()
 
-                if particle_dataloader.step % config.cost_update_frequency == 0:
+            kinetic_loss_record.append(kinetic_loss_sum / particle_dataloader_size)
+            classifier_loss_record.append(classifier_loss_sum / particle_dataloader_size)
+            particle_optimization_loss_record.append(particle_optimization_loss_sum / particle_dataloader_size)
 
-                    p_1_training = particle_trajectory[-1, :, :].clone().detach() # (data_size, dim)
-                    classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training), 
-                                                                        batch_size=config.classifier_minibatch, 
-                                                                        shuffle=True))
-                    for x_p, x_q in classifier_dataloader:
-                            x_p = x_p.to(device)
-                            x_q = x_q.to(device)
-                            if classifier_dataloader.step <= config.classifier_retrain_steps:
-                                classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
-                                classifier_optim.zero_grad()
-                                classifier_loss["loss"].backward()
-                                classifier_optim.step()
-                                intermediate_classifier_loss_record.append(classifier_loss["loss"].item())
-                            else:
-                                break
+            # Update classifier every freq_update epochs
+            if (e + 1) % config.cost_update_frequency == 0:
 
-            else:
-                break
+                p_1_training = particle_trajectory[-1, :, :].clone().detach() # (data_size, dim)
+                classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training), 
+                                                                    batch_size=config.classifier_minibatch, 
+                                                                    shuffle=True))
+                for x_p, x_q in classifier_dataloader:
+                    x_p = x_p.to(device)
+                    x_q = x_q.to(device)
+
+                    if classifier_dataloader.step <= config.classifier_retrain_steps:
+                        classifier_loss = classifier_loss_fn(classifier, x_p, x_q)
+                        classifier_optim.zero_grad()
+                        classifier_loss["loss"].backward()
+                        classifier_optim.step()
+                        classifier_retrain_loss_record.append(classifier_loss["loss"].item())
+                    else:
+                        break
+
+            particle_optimization_pbar.update(1)
 
         # this is updated particle trajectory
         X_bar = torch.cat([particle_0.detach().cpu(), particle_trajectory.detach().cpu()], dim=0) # (len(timesteps), training_size, dim)
