@@ -73,7 +73,6 @@ if __name__ == "__main__":
                                     classifier_learning_rate=args.classifier_learning_rate,
                                     classifier_minibatch=args.classifier_minibatch,
                                     classifier_initial_steps=args.classifier_initial_steps,
-                                    classifier_steps=args.classifier_steps,      
                                     cost_update_frequency=args.cost_update_frequency,
                                     classifier_retrain_steps=args.classifier_retrain_steps,
 
