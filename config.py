@@ -1,64 +1,83 @@
-class MFGFlowToyExampleConfig():
+class MFGFlowToyExampleConfig:
+    def __init__(
+        self,
+        # data / problem
+        saving_dir,
+        data_dir,
+        seed,
+        n_train,
+        n_test,
+        outer_batch,
+        outer_loop,
+        ode_solver,
+        odeint_minibatch,
+        ode_timesteps,
 
-    def __init__(self, 
-                 classifier_hidden_dims,
-                 classifier_activation,
-                 classifier_learning_rate,
-                 classifier_training_batch_size,
-                 initial_classifier_training_step,
-                 classifier_intermediate_training_frequency,
-                 intermediate_classifier_training_step,
-                 velocity_field_hidden_dims,
-                 velocity_field_layer_type,
-                 velocity_field_activation,
-                 velocity_field_initialization,
-                 velocity_field_initialization_training_step,
-                 velocity_field_learning_rate,
-                 velocity_field_training_batch_size,
-                 initial_velocity_field_training_step,
-                 velocity_field_training_step,
-                 initial_particle_optimization_epoch,
-                 particle_optimization_epoch,
-                 particle_optimization_learning_rate,
-                 particle_optimization_batch_size,
-                 kinetic_loss_weight,
-                 classifier_loss_weight,
-                 epochs,
-                 ode_solver,
-                 odeint_batch_size,
-                 num_timesteps,
-                 seed,
-                 saving_dir
-                 ):
-        
+        # models
+        classifier_hidden_dims,
+        classifier_activation,
+        vf_hidden_dims,
+        vf_layer_type,
+        vf_activation,
+
+        # training
+        classifier_learning_rate,
+        classifier_minibatch,
+        classifier_initial_steps,
+        cost_update_frequency,
+        classifier_retrain_steps,
+
+        vf_initialization,
+        vf_initial_steps,
+        vf_learning_rate,
+        vf_minibatch,
+        vf_steps,
+
+        particle_learning_rate,
+        particle_minibatch,
+        particle_steps,
+
+        kinetic_loss_weight,
+        classifier_loss_weight,):
+
+        # data / problem
+        self.saving_dir = saving_dir
+        self.data_dir = data_dir
+        self.seed = seed
+        self.n_train = n_train
+        self.n_test = n_test
+        self.outer_batch = outer_batch
+        self.outer_loop = outer_loop
+        self.ode_solver = ode_solver
+        self.odeint_minibatch = odeint_minibatch
+        self.ode_timesteps = ode_timesteps
+
+        # models
         self.classifier_hidden_dims = classifier_hidden_dims
         self.classifier_activation = classifier_activation
+        self.vf_hidden_dims = vf_hidden_dims
+        self.vf_layer_type = vf_layer_type
+        self.vf_activation = vf_activation
+
+        # training
         self.classifier_learning_rate = classifier_learning_rate
-        self.classifier_training_batch_size = classifier_training_batch_size
-        self.initial_classifier_training_step = initial_classifier_training_step
-        self.classifier_intermediate_training_frequency = classifier_intermediate_training_frequency
-        self.intermediate_classifier_training_step = intermediate_classifier_training_step
-        self.velocity_field_hidden_dims = velocity_field_hidden_dims
-        self.velocity_field_layer_type = velocity_field_layer_type
-        self.velocity_field_activation = velocity_field_activation
-        self.velocity_field_initialization = velocity_field_initialization
-        self.velocity_field_initialization_training_step = velocity_field_initialization_training_step
-        self.velocity_field_learning_rate = velocity_field_learning_rate
-        self.velocity_field_training_batch_size = velocity_field_training_batch_size
-        self.initial_velocity_field_training_step = initial_velocity_field_training_step
-        self.velocity_field_training_step = velocity_field_training_step
-        self.initial_particle_optimization_epoch = initial_particle_optimization_epoch
-        self.particle_optimization_epoch = particle_optimization_epoch
-        self.particle_optimization_learning_rate = particle_optimization_learning_rate
-        self.particle_optimization_batch_size = particle_optimization_batch_size
+        self.classifier_minibatch = classifier_minibatch
+        self.classifier_initial_steps = classifier_initial_steps
+        self.cost_update_frequency = cost_update_frequency
+        self.classifier_retrain_steps = classifier_retrain_steps
+
+        self.vf_initialization = vf_initialization
+        self.vf_initial_steps = vf_initial_steps
+        self.vf_learning_rate = vf_learning_rate
+        self.vf_minibatch = vf_minibatch
+        self.vf_steps = vf_steps
+
+        self.particle_learning_rate = particle_learning_rate
+        self.particle_minibatch = particle_minibatch
+        self.particle_steps = particle_steps
+
         self.kinetic_loss_weight = kinetic_loss_weight
         self.classifier_loss_weight = classifier_loss_weight
-        self.epochs = epochs
-        self.ode_solver = ode_solver
-        self.odeint_batch_size = odeint_batch_size
-        self.num_timesteps = num_timesteps
-        self.seed = seed
-        self.saving_dir = saving_dir
 
 
 class MFGFlowHDGaussianConfig():
