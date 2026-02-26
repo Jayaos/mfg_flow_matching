@@ -53,13 +53,13 @@ def parse_args():
     p.add_argument("--initial_particle_optimization_epoch", type=int, default=300)         
     p.add_argument("--particle_optimization_epoch", type=int, default=300)        
     p.add_argument("--particle_optimization_learning_rate", type=float, default=.001)  
-    p.add_argument("--particle_optimization_batch_size", type=int, default=1024)      
+    p.add_argument("--particle_optimization_batch_size", type=int, default=512)      
 
 
     # training
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
-    p.add_argument("--epochs", type=int, default=50)
+    p.add_argument("--epochs", type=int, default=100)
     p.add_argument("--epoch_training_ratio", type=float, default=0.13)
     p.add_argument("--ode_solver", type=str, default="rk4")       
     p.add_argument("--odeint_batch_size", type=int, default=2048)               
