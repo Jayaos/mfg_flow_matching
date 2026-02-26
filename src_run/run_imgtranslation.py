@@ -34,16 +34,15 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
     vae_model.load_state_dict(torch.load(config.vae_model_dir)["state_dict"], strict=False)
 
     # no need to load VAE here for training
-    timesteps = torch.linspace(0, 1, config.num_timesteps)
-    timestep_size = 1/(config.num_timesteps-1)
+    timesteps = torch.linspace(0, 1, config.ode_timesteps)
+    timestep_size = 1/(config.ode_timesteps-1)
     input_dim = image_dataset["p_training"][0].shape
 
     # initialize model
     print("data dimension: {}".format(input_dim))
-    print("data size of P : {}".format(image_dataset["p_training"].shape))
-    print("data size of Q : {}".format(image_dataset["q_training"].shape))
-    print("data size used for each training epoch: {}".format(int(len(image_dataset["p_training"])*
-                                                                  config.epoch_training_ratio)))
+    print("training data size of P : {}".format(image_dataset["p_training"].shape))
+    print("training data size of Q : {}".format(image_dataset["q_training"].shape))
+
 
     classifier = UNetClassifier(input_dim[0], 
                                 config.classifier_channels,
