@@ -17,7 +17,7 @@ def parse_args():
     p.add_argument("--n_train", type=int, default=100000)
     p.add_argument("--n_test", type=int, default=2000)
     p.add_argument("--outer_batch", type=int, default=10000)
-    p.add_argument("--outer_loop", type=int, default=10)
+    p.add_argument("--outer_loop", type=int, default=20)
     p.add_argument("--ode_solver", type=str, default="rk4")       
     p.add_argument("--odeint_minibatch", type=int, default=2048)               
     p.add_argument("--ode_timesteps", type=int, default=10)   
