@@ -147,8 +147,8 @@ def plot_particle_trajectories_toy_example(model_dir,
                                            seed=None,
                                            saving=None):
     
-    epoch = model_dir.split("/")[-2]
-    epoch_num = epoch.split("_")[-1]
+    loop = model_dir.split("/")[-2]
+    loop_num = loop.split("_")[-1]
     config = load_data(config_dir)
 
     velocity_field = MLPVelocityField(
@@ -192,11 +192,9 @@ def plot_particle_trajectories_toy_example(model_dir,
         .numpy()
     )
 
-    print(
-        f"Relative error: "
-        f"{100*np.linalg.norm(particle_trajectories_ode_selected - particle_trajectories_selected) / np.linalg.norm(particle_trajectories_selected):.4f}%"
-    )
-
+    rel_err = 100*np.linalg.norm(particle_trajectories_ode_selected - particle_trajectories_selected) / np.linalg.norm(particle_trajectories_selected)
+    print("Relative error at loop {}: {:.4f}".format(loop_num, rel_err))
+    
     # --- PLOT FRAMING STUFF STARTS HERE ---
     fsize = 13
     xlim = (-4.5, 4.5)
@@ -271,12 +269,12 @@ def plot_particle_trajectories_toy_example(model_dir,
                 "trajectories after flow matching", fontsize=fsize, pad=8
             )
 
-    fig.suptitle(f"training epoch: {epoch_num}", fontsize=fsize + 2, y=1.02)
+    fig.suptitle(f"outer loop: {loop_num}", fontsize=fsize + 2, y=1.02)
     fig.tight_layout()
 
     if saving:
         saving_dir = os.path.join(
-            saving, f"particles_ode_trajectories_{epoch}.pdf"
+            saving, f"particles_ode_trajectories_{loop}.pdf"
         )
         fig.savefig(saving_dir, dpi=300, bbox_inches="tight")
 
