@@ -54,7 +54,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
         loop_saving_dir = os.path.join(config.saving_dir, "loop_{}".format(i+1))
         os.makedirs(loop_saving_dir, exist_ok=True)
 
-        p_training, q_training = next(outer_loop_dataloader)
+        p_training_loop, q_training_loop = next(outer_loop_dataloader)
 
         if i == 0:
 
@@ -63,7 +63,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
 
                 vf_init_optim = torch.optim.Adam(velocity_field.parameters(), 
                                                  lr=config.particle_learning_rate)
-                vf_init_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training, q_training), 
+                vf_init_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training_loop, q_training_loop), 
                                                                    batch_size=config.vf_minibatch, 
                                                                    shuffle=True))
                 vf_init_pbar = tqdm(total=config.vf_initial_steps, 
@@ -96,25 +96,25 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                 with torch.no_grad():  # Don't track gradients for ODE solving
                     if config.odeint_minibatch:
                         X_bar = batched_odeint(velocity_field, 
-                                               p_training, 
+                                               p_training_loop, 
                                                timesteps,
                                                config.odeint_minibatch,
                                                ode_solver=config.ode_solver,
                                                device=device)
                     else:
-                        X_bar = odeint(velocity_field, p_training, timesteps, method=config.ode_solver) 
+                        X_bar = odeint(velocity_field, p_training_loop, timesteps, method=config.ode_solver) 
                     # (len(timesteps), training_size, dim)
 
             else:
                 print("Initialize particle trajectories with linear interpolant")
                 # X_bar: (len(timesteps), data_size, dim)
-                X_bar = initialize_linear_interpolant(p_training, timesteps)
+                X_bar = initialize_linear_interpolant(p_training_loop, timesteps)
                 # initial Xbar is just linear interpolant of p and q based on time steps
 
             classifier_optimization_pbar = tqdm(total=config.classifier_initial_steps, 
                                                 desc="Initial Classifier Training Steps")
             p_1_training = X_bar[-1, :, :].detach() # (data_size, dim), endpoint of linear interpolant
-            classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training), 
+            classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training_loop), 
                                                                   batch_size=config.classifier_minibatch, 
                                                                   shuffle=True))
 
@@ -139,13 +139,13 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
             with torch.no_grad():  # Don't track gradients for ODE solving
                 if config.odeint_minibatch:
                     X_bar = batched_odeint(velocity_field, 
-                                           p_training, 
+                                           p_training_loop, 
                                            timesteps,
                                            config.odeint_minibatch,
                                            ode_solver=config.ode_solver,
                                            device=device)
                 else:
-                    X_bar = odeint(velocity_field, p_training, timesteps, method=config.ode_solver) 
+                    X_bar = odeint(velocity_field, p_training_loop, timesteps, method=config.ode_solver) 
                 # (len(timesteps), training_size, dim)
 
         # Particle optimization
@@ -171,7 +171,6 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                                                    batch_size=config.particle_minibatch, 
                                                    shuffle=True)
         particle_dataloader_size = len(particle_dataloader)
-        particle_optimization_pbar = tqdm(total=config.particle_loop, desc="Particle Opimization Loop")
 
         for e in tqdm(range(config.particle_loop)):
             
@@ -201,7 +200,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
             if (e + 1) % config.cost_update_frequency == 0:
 
                 p_1_training = particle_trajectory[-1, :, :].clone().detach() # (data_size, dim)
-                classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training), 
+                classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training_loop), 
                                                                     batch_size=config.classifier_minibatch, 
                                                                     shuffle=True))
                 for x_p, x_q in classifier_dataloader:
@@ -216,8 +215,6 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                         classifier_retrain_loss_record.append(classifier_loss["loss"].item())
                     else:
                         break
-
-            particle_optimization_pbar.update(1)
 
         # this is updated particle trajectory
         X_bar = torch.cat([particle_0.detach().cpu(), particle_trajectory.detach().cpu()], dim=0) # (len(timesteps), training_size, dim)
