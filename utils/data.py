@@ -5,7 +5,7 @@ from PIL import Image
 from torch.utils.data import DataLoader
 from config import ShoebagsDatasetConfig, CelebADatasetConfig
 from ldm.data.shoebags import Shoes, Bags
-from ldm.data.celeba import CelebATestMale, CelebATestFemale
+from ldm.data.celeba import CelebATestMale, CelebATestFemale, CelebAValidMale, CelebAValidFemale
 from ldm.data.base import ImageDefaultDataset
 from ldm.models.utils import convert_logvar_to_std
 
@@ -142,8 +142,8 @@ def load_image_dataset(config, dataset_config):
                                                     augmentation=False)
         
         # load celebA heldout image dataset
-        p_test_dataset = CelebATestMale(root=dataset_config.data_dir, size=64)
-        q_test_dataset = CelebATestFemale(root=dataset_config.data_dir, size=64)
+        p_test_dataset = CelebAValidMale(root=dataset_config.data_dir, size=64)
+        q_test_dataset = CelebAValidFemale(root=dataset_config.data_dir, size=64)
         p_test_dataloader = DataLoader(ImageDefaultDataset(p_test_dataset), 
                                         batch_size=config.odeint_minibatch, 
                                         shuffle=False)
