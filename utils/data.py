@@ -110,10 +110,10 @@ def load_image_dataset(config, dataset_config):
                                dataset_config.seed, 
                                complement=True)
         p_test_dataloader = DataLoader(ImageDefaultDataset(p_test_dataset), 
-                                        batch_size=config.odeint_batch_size, 
+                                        batch_size=config.odeint_minibatch, 
                                         shuffle=False)
         q_test_dataloader = DataLoader(ImageDefaultDataset(q_test_dataset), 
-                                        batch_size=config.odeint_batch_size, 
+                                        batch_size=config.odeint_minibatch, 
                                         shuffle=False)
         
     elif isinstance(dataset_config, CelebADatasetConfig):
@@ -145,10 +145,10 @@ def load_image_dataset(config, dataset_config):
         p_test_dataset = CelebATestMale(root=dataset_config.data_dir, size=64)
         q_test_dataset = CelebATestFemale(root=dataset_config.data_dir, size=64)
         p_test_dataloader = DataLoader(ImageDefaultDataset(p_test_dataset), 
-                                        batch_size=config.odeint_batch_size, 
+                                        batch_size=config.odeint_minibatch, 
                                         shuffle=False)
         q_test_dataloader = DataLoader(ImageDefaultDataset(q_test_dataset), 
-                                        batch_size=config.odeint_batch_size, 
+                                        batch_size=config.odeint_minibatch, 
                                         shuffle=False)
         
     print("p_training size: {}".format(len(p_training)))
