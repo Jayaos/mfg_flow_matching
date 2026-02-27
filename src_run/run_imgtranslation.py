@@ -65,6 +65,11 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
 
     mfgflow_training_pbar = tqdm(total=config.outer_loop, 
                                  desc="MFG-Flow Training Epochs")
+    
+    if device.type == "cuda":
+        print("GPU mem check at model init")
+        print(f"[GPU mem] allocated={torch.cuda.memory_allocated()/1024**2:.1f} MB | "
+                f"reserved={torch.cuda.memory_reserved()/1024**2:.1f} MB")
 
     for i in range(config.outer_loop):
 
@@ -122,6 +127,11 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                 else:
                     X_bar = odeint(velocity_field, p_training_loop, timesteps, method=config.ode_solver) 
                 # (len(timesteps), training_size, dims, ...)
+
+            if device.type == "cuda":
+                print("GPU mem check after ODE solved")
+                print(f"[GPU mem] allocated={torch.cuda.memory_allocated()/1024**2:.1f} MB | "
+                        f"reserved={torch.cuda.memory_reserved()/1024**2:.1f} MB")
 
             # select 5 images for sanity check
             rand_idx_visualization = torch.randperm(len(p_training_loop))[:5]
@@ -218,6 +228,10 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
         particle_trajectory.requires_grad_(True)
         particle_optim = torch.optim.Adam([particle_trajectory], lr=config.particle_learning_rate)
 
+        if device.type == "cuda":
+            print("GPU mem check at particle optimization")
+            print(f"[GPU mem] allocated={torch.cuda.memory_allocated()/1024**2:.1f} MB | "
+                    f"reserved={torch.cuda.memory_reserved()/1024**2:.1f} MB")
 
         kinetic_loss_record = []
         classifier_loss_record = []
