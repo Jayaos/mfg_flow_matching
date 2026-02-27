@@ -30,6 +30,9 @@ if __name__ == "__main__":
     p_dataset_config.n_test = args.sample_size
     q_dataset_config.n_test = args.sample_size
 
+    print(p_dataset_config.n_train)
+    print(p_dataset_config.n_test)
+
     _, p_test = generate_toy_data(p_dataset_config, args.seed)
     _, q_test = generate_toy_data(q_dataset_config, args.seed)
 
