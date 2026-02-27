@@ -25,7 +25,7 @@ def parse_args():
     p.add_argument("--outer_batch", type=int, default=10000)
     p.add_argument("--outer_loop", type=int, default=50)
     p.add_argument("--ode_solver", type=str, default="rk4")       
-    p.add_argument("--odeint_minibatch", type=int, default=2048)
+    p.add_argument("--odeint_minibatch", type=int, default=1024)
     p.add_argument("--ode_timesteps", type=int, default=15)
 
     # models
