@@ -13,6 +13,7 @@ def parse_args():
     p.add_argument("--p_dataset_config_dir", type=str, default="./results/mfg_flow_toy_example/p_dataset_config.pkl")
     p.add_argument("--q_dataset_config_dir", type=str, default="./results/mfg_flow_toy_example/q_dataset_config.pkl")
     p.add_argument("--model_dir", type=str)
+    p.add_argument("--seed", type=int, default=2026)
     p.add_argument("--config_dir", type=str, default="./results/mfg_flow_toy_example/mfg_flow_config.pkl")
     p.add_argument("--sample_size", type=int, default=30000)
     p.add_argument("--saving_dir", type=str)
@@ -29,8 +30,8 @@ if __name__ == "__main__":
     p_dataset_config.n_test = args.sample_size
     q_dataset_config.n_test = args.sample_size
 
-    _, p_test = generate_toy_data(p_dataset_config, p_dataset_config.seed)
-    _, q_test = generate_toy_data(q_dataset_config, q_dataset_config.seed)
+    _, p_test = generate_toy_data(p_dataset_config, args.seed)
+    _, q_test = generate_toy_data(q_dataset_config, args.seed)
 
     config = load_data(args.config_dir)
 
