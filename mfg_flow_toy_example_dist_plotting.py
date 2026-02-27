@@ -38,9 +38,9 @@ if __name__ == "__main__":
     velocity_field = MLPVelocityField(
         2,
         1,  # time dim = 1
-        config.vf_hidden_dims,
-        config.vf_layer_type,
-        config.vf_activation,
+        [512, 512, 512, 512, 512, 512],
+        "concatlinear",
+        torch.nn.ReLU(),
     )
     velocity_field.load_state_dict(torch.load(args.model_dir, map_location=torch.device("cpu")))
 
