@@ -139,11 +139,11 @@ def load_image_dataset(config, dataset_config):
         p_test, q_test = generate_latent_image_data(test_male_mu, test_male_std,
                                                     test_female_mu, test_female_std,
                                                     p_rescale_factor, q_rescale_factor,
-                                                    augmentation=False)
+                                                    augmentation=False, cutoff=False)
         
         # load celebA heldout image dataset
-        p_test_dataset = CelebAValidMale(root=dataset_config.data_dir, size=64)
-        q_test_dataset = CelebAValidFemale(root=dataset_config.data_dir, size=64)
+        p_test_dataset = CelebATestMale(root=dataset_config.data_dir, size=64)
+        q_test_dataset = CelebATestFemale(root=dataset_config.data_dir, size=64)
         p_test_dataloader = DataLoader(ImageDefaultDataset(p_test_dataset), 
                                         batch_size=config.odeint_minibatch, 
                                         shuffle=False)
@@ -217,7 +217,7 @@ def sample_latent_image(mu, std, rescale=None):
 def generate_latent_image_data(p_mu, p_std, 
                                q_mu, q_std, 
                                p_rescale_factor, q_rescale_factor, 
-                               augmentation=True):
+                               augmentation=True, cutoff=True):
 
     # compute multiplier to make the number of the generated latent images are the same between p and q
     if augmentation:
@@ -248,11 +248,13 @@ def generate_latent_image_data(p_mu, p_std,
     generated_p_samples = torch.cat(generated_p_samples, dim=0)
     generated_q_samples = torch.cat(generated_q_samples, dim=0)
 
-    min_size = min(generated_p_samples.size(0), generated_q_samples.size(0))
+    if cutoff:
 
-    # both p and q samples have the same size 
-    generated_p_samples = generated_p_samples[:min_size]
-    generated_q_samples = generated_q_samples[:min_size]
+        min_size = min(generated_p_samples.size(0), generated_q_samples.size(0))
+
+        # both p and q samples have the same size 
+        generated_p_samples = generated_p_samples[:min_size]
+        generated_q_samples = generated_q_samples[:min_size]
 
     return generated_p_samples, generated_q_samples
 
