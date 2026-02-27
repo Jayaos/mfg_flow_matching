@@ -29,8 +29,8 @@ if __name__ == "__main__":
     p_dataset_config.n_test = args.sample_size
     q_dataset_config.n_test = args.sample_size
 
-    _, p_test = generate_toy_data(p_dataset_config, args.seed)
-    _, q_test = generate_toy_data(q_dataset_config, args.seed)
+    _, p_test = generate_toy_data(p_dataset_config, p_dataset_config.seed)
+    _, q_test = generate_toy_data(q_dataset_config, q_dataset_config.seed)
 
     config = load_data(args.config_dir)
 
