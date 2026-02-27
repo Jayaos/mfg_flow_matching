@@ -50,7 +50,7 @@ if __name__ == "__main__":
     plot_2d_ode_trajectories(velocity_field, 
                              p_test, q_test, 
                              config.ode_timesteps, 
-                             8, 200, config.ode_solver, 
+                             8, 200, "dopri5", 
                              config.odeint_minibatch, 
                              device="cpu", 
                              saving=args.saving_dir)
