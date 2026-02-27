@@ -41,7 +41,6 @@ def get_inception_features(data_loader, dims=2048, device="cpu"):
                 inception_features.append(features.cpu())
 
     if device == "cuda":
-        print("GPU mem check after ODE solved")
         print(f"[GPU mem] allocated={torch.cuda.memory_allocated()/1024**2:.1f} MB | "
                 f"reserved={torch.cuda.memory_reserved()/1024**2:.1f} MB", flush=True)
 
