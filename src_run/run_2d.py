@@ -249,7 +249,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
         plot_2d_ode_trajectories(velocity_field, 
                                  p_test, q_test, 
                                  config.ode_timesteps, 
-                                 8, 200, "rk4", 2048, 
+                                 8, 200, "rk4", config.odeint_minibatch, 
                                  device=device, 
                                  saving=loop_saving_dir)
 
