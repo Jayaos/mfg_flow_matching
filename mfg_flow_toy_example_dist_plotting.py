@@ -33,6 +33,8 @@ if __name__ == "__main__":
     _, p_test = generate_toy_data(p_dataset_config, args.seed)
     _, q_test = generate_toy_data(q_dataset_config, args.seed)
 
+    print(p_test.shape)
+
     config = load_data(args.config_dir)
 
     velocity_field = MLPVelocityField(
