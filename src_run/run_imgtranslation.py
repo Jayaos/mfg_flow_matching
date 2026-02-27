@@ -53,10 +53,10 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                                 config.classifier_channels,
                                 config.classifier_use_bias).to(device)
     velocity_field = ConvVelocityField(input_dim[0], 
-                                      config.velocity_field_encoding_dims,
-                                      config.velocity_field_decoding_dims,
-                                      config.velocity_field_kernel_sizes,
-                                      config.velocity_field_strides).to(device)
+                                       config.vf_encoding_dims,
+                                       config.vf_decoding_dims,
+                                       config.vf_kernel_sizes,
+                                       config.vf_strides).to(device)
     classifier_optim = torch.optim.Adam(classifier.parameters(), lr=config.classifier_learning_rate)
     vf_optim = torch.optim.Adam(velocity_field.parameters(), lr=config.vf_learning_rate)
 
@@ -112,7 +112,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                     break
 
             with torch.no_grad():  # Don't track gradients for ODE solving
-                if config.odeint_batch_size:
+                if config.odeint_minibatch:
                     X_bar = batched_odeint(velocity_field, 
                                            p_training_loop, 
                                            timesteps,
@@ -149,7 +149,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                                                 image_dataset["p_test"],
                                                 image_dataset["q_test_dataloader"],
                                                 timesteps,
-                                                config.odeint_batch_size,
+                                                config.odeint_minibatch,
                                                 config.ode_solver,
                                                 device=device)
             print("test FID of the initialized velocity field: {}".format(init_vf_test_fid))
@@ -179,7 +179,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
         else:
             # if not the first loop, start by solving ODE to obtain trajectories
             with torch.no_grad():  # Don't track gradients for ODE solving
-                if config.odeint_batch_size:
+                if config.odeint_minibatch:
                     X_bar = batched_odeint(velocity_field, 
                                            p_training_loop, 
                                            timesteps,
@@ -315,7 +315,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                                                         image_dataset["q_test"],
                                                         image_dataset["q_test_dataloader"],
                                                         timesteps,
-                                                        config.odeint_batch_size,
+                                                        config.odeint_minibatch,
                                                         config.ode_solver,
                                                         device)
         
@@ -325,7 +325,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                                     image_dataset["p_test"],
                                     image_dataset["q_test_dataloader"],
                                     timesteps,
-                                    config.odeint_batch_size,
+                                    config.odeint_minibatch,
                                     config.ode_solver,
                                     device=device)
         
