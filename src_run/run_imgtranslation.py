@@ -340,7 +340,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
             loss_record[i] = {"kinetic_loss_record" : kinetic_loss_record,
                               "initial_classifier_loss_record" : initial_classifier_loss_record,
                               "classifier_loss_record" : classifier_loss_record,
-                              "intermediate_classifier_loss_record" : intermediate_classifier_loss_record,
+                              "classifier_retrain_loss_record" : classifier_retrain_loss_record,
                               "particle_optimization_loss_record" : particle_optimization_loss_record,
                               "vf_loss_record" : vf_loss_record,
                               "vf_train_fid" : vf_train_fid,
@@ -352,7 +352,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
         else:                
             loss_record[i] = {"kinetic_loss_record" : kinetic_loss_record,
                               "classifier_loss_record" : classifier_loss_record,
-                              "intermediate_classifier_loss_record" : intermediate_classifier_loss_record,
+                              "classifier_retrain_loss_record" : classifier_retrain_loss_record,
                               "particle_optimization_loss_record" : particle_optimization_loss_record,
                               "vf_loss_record" : vf_loss_record,
                               "vf_train_fid" : vf_train_fid,
@@ -363,6 +363,6 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                               "test_fid" : test_fid}
             
         save_data(config.saving_dir + "loss_record.pkl", loss_record)
-        torch.save(classifier.state_dict(), os.path.join(epoch_saving_dir, 'classifier_e{}.pt'.format(i+1)))
-        torch.save(velocity_field.state_dict(), os.path.join(epoch_saving_dir, 'velocity_field_e{}.pt'.format(i+1)))
+        torch.save(classifier.state_dict(), os.path.join(epoch_saving_dir, 'classifier_l{}.pt'.format(i+1)))
+        torch.save(velocity_field.state_dict(), os.path.join(epoch_saving_dir, 'velocity_field_l{}.pt'.format(i+1)))
     
