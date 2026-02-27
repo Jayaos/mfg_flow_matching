@@ -15,9 +15,9 @@ def parse_args():
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--seed", type=int, default=2026)
     p.add_argument("--n_train", type=int, default=300000)
-    p.add_argument("--n_test", type=int, default=5000)
+    p.add_argument("--n_test", type=int, default=20000)
     p.add_argument("--outer_batch", type=int, default=10000)
-    p.add_argument("--outer_loop", type=int, default=50)
+    p.add_argument("--outer_loop", type=int, default=40)
     p.add_argument("--ode_solver", type=str, default="rk4")       
     p.add_argument("--odeint_minibatch", type=int, default=2048)               
     p.add_argument("--ode_timesteps", type=int, default=10)   
@@ -32,7 +32,7 @@ def parse_args():
     p.add_argument("--classifier_minibatch", type=int, default=2048)
     p.add_argument("--classifier_initial_steps", type=int, default=1000)
     p.add_argument("--cost_update_frequency", type=int, default=10)
-    p.add_argument("--classifier_retrain_steps", type=int, default=20)
+    p.add_argument("--classifier_retrain_steps", type=int, default=10)
 
     p.add_argument("--vf_initialization", type=str, default=None)
     p.add_argument("--vf_initial_steps", type=int, default=1000)
@@ -54,15 +54,15 @@ if __name__ == "__main__":
     args = parse_args()
 
     config = MFGFlowToyExampleConfig(saving_dir=args.saving_dir,
-                                    data_dir=args.data_dir,
-                                    seed=args.seed,
-                                    n_train=args.n_train,
-                                    n_test=args.n_test,
-                                    outer_batch=args.outer_batch,
-                                    outer_loop=args.outer_loop,
-                                    ode_solver=args.ode_solver,
-                                    odeint_minibatch=args.odeint_minibatch,
-                                    ode_timesteps=args.ode_timesteps,
+                                     data_dir=args.data_dir,
+                                     seed=args.seed,
+                                     n_train=args.n_train,
+                                     n_test=args.n_test,
+                                     outer_batch=args.outer_batch,
+                                     outer_loop=args.outer_loop,
+                                     ode_solver=args.ode_solver,
+                                     odeint_minibatch=args.odeint_minibatch,
+                                     ode_timesteps=args.ode_timesteps,
 
                                     classifier_hidden_dims=args.classifier_hidden_dims,
                                     classifier_activation=torch.nn.ReLU(),
