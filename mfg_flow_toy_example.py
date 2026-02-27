@@ -34,7 +34,7 @@ def parse_args():
     p.add_argument("--cost_update_frequency", type=int, default=10)
     p.add_argument("--classifier_retrain_steps", type=int, default=20)
 
-    p.add_argument("--vf_initialization", type=str, default="linear-flow-matching")
+    p.add_argument("--vf_initialization", type=str, default=None)
     p.add_argument("--vf_initial_steps", type=int, default=1000)
     p.add_argument("--vf_learning_rate", type=float, default=.001)  
     p.add_argument("--vf_minibatch", type=int, default=2048)  
