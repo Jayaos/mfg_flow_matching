@@ -38,7 +38,12 @@ def get_inception_features(data_loader, dims=2048, device="cpu"):
                 x = (x+1)/2
                 x = x.to(device)
                 features = inceptionv3_model(x)[0].view(x.shape[0], -1) # (batch_size, dims)
-                inception_features.append(features.cpu())         
+                inception_features.append(features.cpu())
+
+    if device == "cuda":
+        print("GPU mem check after ODE solved")
+        print(f"[GPU mem] allocated={torch.cuda.memory_allocated()/1024**2:.1f} MB | "
+                f"reserved={torch.cuda.memory_reserved()/1024**2:.1f} MB", flush=True)
 
     inception_features = np.vstack(inception_features)
     mu, sigma = np.mean(inception_features, axis=0), np.cov(inception_features, rowvar=False)
