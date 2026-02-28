@@ -38,7 +38,7 @@ def parse_args():
     p.add_argument("--vf_initial_steps", type=int, default=1000)
     p.add_argument("--vf_learning_rate", type=float, default=.001)  
     p.add_argument("--vf_minibatch", type=int, default=2048)  
-    p.add_argument("--vf_steps", type=int, default=100)  
+    p.add_argument("--vf_steps", type=int, default=200)  
 
     p.add_argument("--particle_learning_rate", type=float, default=.001)  
     p.add_argument("--particle_minibatch", type=int, default=2048)
