@@ -316,7 +316,7 @@ def plot_2d_ode_trajectories(velocity_field, p, q, num_timesteps, num_plots, num
         kde_forward = gaussian_kde(X_bar_fwd[idx[i], :, :].T, bw_method=kde_bandwidth)
         x_grid, y_grid = np.meshgrid(np.linspace(-4, 4, num_grid), np.linspace(-4, 4, num_grid))
         z_forward = kde_forward(np.vstack([x_grid.ravel(), y_grid.ravel()])).reshape(x_grid.shape)
-        ax_forward[i].imshow(z_forward, extent=(-4, 4, -4, 4), origin='lower', cmap='viridis', alpha=0.5)
+        ax_forward[i].imshow(z_forward, extent=(-4, 4, -4, 4), origin='lower', cmap='viridis', alpha=0.7)
         ax_forward[i].set_title(f'$t={timesteps[idx[i]]:.2f}$', fontsize=18)
 
     fig_forward.tight_layout()
