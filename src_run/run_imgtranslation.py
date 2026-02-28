@@ -64,7 +64,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
     loss_record = dict()
 
     mfgflow_training_pbar = tqdm(total=config.outer_loop, 
-                                 desc="MFG-Flow Training Epochs")
+                                 desc="MFG-Flow Training Loop")
     
     if device == "cuda":
         print("GPU mem check at model init")
@@ -73,10 +73,12 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
 
     for i in range(config.outer_loop):
 
-        epoch_saving_dir = os.path.join(config.saving_dir, "epoch_{}".format(i+1))
-        os.makedirs(epoch_saving_dir, exist_ok=True)
+        loop_saving_dir = os.path.join(config.saving_dir, "loop_{}".format(i+1))
+        os.makedirs(loop_saving_dir, exist_ok=True)
 
-        p_training_loop, q_training_loop = next(outer_loop_dataloader)
+        rand_idx = torch.randperm(len(image_dataset["p_training"]))[:config.outer_batch]
+        p_training_loop = image_dataset["p_training"][rand_idx]
+        q_training_loop = image_dataset["q_training"][rand_idx]
 
         if i == 0:
 
@@ -149,7 +151,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                                                     image_dataset["image_dim"][0],
                                                     image_dataset["image_dim"][1])).cpu().detach()
             
-            saving_file_name = os.path.join(epoch_saving_dir, "5decoded_samples_trajectories.pdf")
+            saving_file_name = os.path.join(loop_saving_dir, "5decoded_samples_trajectories.pdf")
             visualize_decoded_samples_trajectories(decoded_samples, 8, saving_file_name)
                 
             # test FID at initialization
@@ -215,7 +217,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                                                     image_dataset["image_dim"][0],
                                                     image_dataset["image_dim"][1])).cpu().detach()
             
-            saving_file_name = os.path.join(epoch_saving_dir, "5decoded_samples_trajectories.pdf")
+            saving_file_name = os.path.join(loop_saving_dir, "5decoded_samples_trajectories.pdf")
             visualize_decoded_samples_trajectories(decoded_samples, 8, saving_file_name)
 
         # Particle optimization
@@ -377,6 +379,6 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
                               "test_fid" : test_fid}
             
         save_data(config.saving_dir + "loss_record.pkl", loss_record)
-        torch.save(classifier.state_dict(), os.path.join(epoch_saving_dir, 'classifier_l{}.pt'.format(i+1)))
-        torch.save(velocity_field.state_dict(), os.path.join(epoch_saving_dir, 'velocity_field_l{}.pt'.format(i+1)))
+        torch.save(classifier.state_dict(), os.path.join(loop_saving_dir, 'classifier_l{}.pt'.format(i+1)))
+        torch.save(velocity_field.state_dict(), os.path.join(loop_saving_dir, 'velocity_field_l{}.pt'.format(i+1)))
     
