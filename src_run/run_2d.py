@@ -22,13 +22,13 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
     save_data(config.saving_dir + "q_dataset_config.pkl", q_dataset_config)
     save_data(config.saving_dir + "mfg_flow_config.pkl", config)
 
-    p_training, p_test = generate_toy_data(p_dataset_config, config.seed)
-    q_training, q_test = generate_toy_data(q_dataset_config, config.seed)
+    #p_training, p_test = generate_toy_data(p_dataset_config, config.seed)
+    #q_training, q_test = generate_toy_data(q_dataset_config, config.seed)
 
-    outer_loop_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training, q_training), 
-                                                          batch_size=config.outer_batch, 
-                                                          shuffle=True, 
-                                                          drop_last=True))
+    #outer_loop_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training, q_training), 
+     #                                                     batch_size=config.outer_batch, 
+      #                                                    shuffle=True, 
+       #                                                   drop_last=True))
     
     timesteps = torch.linspace(0, 1, config.ode_timesteps)
     timestep_size = 1/(config.ode_timesteps-1)
@@ -45,6 +45,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
     vf_optim = torch.optim.Adam(velocity_field.parameters(), lr=config.vf_learning_rate)
     initial_classifier_loss_record = []
     loss_record = dict()
+    initial_seed = config.seed
 
     outer_loop_pbar = tqdm(total=config.outer_loop, 
                            desc="MFG-Flow Training Outer Loop")
@@ -54,7 +55,10 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
         loop_saving_dir = os.path.join(config.saving_dir, "loop_{}".format(i+1))
         os.makedirs(loop_saving_dir, exist_ok=True)
 
-        p_training_loop, q_training_loop = next(outer_loop_dataloader)
+        # generate data for training
+        p_training_loop, _ = generate_toy_data(p_dataset_config, initial_seed)
+        q_training_loop, _ = generate_toy_data(q_dataset_config, initial_seed)
+        initial_seed += 1
 
         if i == 0:
 
@@ -63,7 +67,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
 
                 vf_init_optim = torch.optim.Adam(velocity_field.parameters(), 
                                                  lr=config.particle_learning_rate)
-                vf_init_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training, q_training), 
+                vf_init_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training_loop, q_training_loop), 
                                                                    batch_size=config.vf_minibatch, 
                                                                    shuffle=True))
                 vf_init_pbar = tqdm(total=config.vf_initial_steps, 
@@ -244,6 +248,10 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                 vf_pbar.update(1)
             else:
                 break
+
+        # generate test data
+        _ , p_test = generate_toy_data(p_dataset_config, config.seed) # use same seed across loops for test
+        _ , q_test = generate_toy_data(q_dataset_config, config.seed) # use same seed across loops for test
 
         # trajectory plot
         plot_2d_ode_trajectories(velocity_field, 

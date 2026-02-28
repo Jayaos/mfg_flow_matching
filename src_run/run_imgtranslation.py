@@ -43,11 +43,11 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
     print("training data size of P : {}".format(image_dataset["p_training"].shape))
     print("training data size of Q : {}".format(image_dataset["q_training"].shape))
 
-    outer_loop_dataloader = DataLoaderIterator(DataLoader(TensorDataset(image_dataset["p_training"], 
-                                                                        image_dataset["q_training"]), 
-                                                          batch_size=config.outer_batch, 
-                                                          shuffle=True, 
-                                                          drop_last=True))
+    #outer_loop_dataloader = DataLoaderIterator(DataLoader(TensorDataset(image_dataset["p_training"], 
+     #                                                                   image_dataset["q_training"]), 
+      #                                                    batch_size=config.outer_batch, 
+       #                                                   shuffle=True, 
+        #                                                  drop_last=True))
 
     classifier = UNetClassifier(input_dim[0], 
                                 config.classifier_channels,
@@ -271,7 +271,7 @@ def run_mfg_flow_image(config: MFGFlowImageConfig, dataset_config, device):
             # Update classifier every freq_update epochs
             if (e + 1) % config.cost_update_frequency == 0:
                     
-                p_1_training = particle_trajectory[-1, :, :].clone().detach() # (data_size, dim)
+                p_1_training = particle_trajectory[-1, :, :, :, :].clone().detach() # (data_size, dim)
                 classifier_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_1_training, q_training_loop), 
                                                                     batch_size=config.classifier_minibatch, 
                                                                     shuffle=True))
