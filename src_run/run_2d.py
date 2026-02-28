@@ -22,8 +22,8 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
     save_data(config.saving_dir + "q_dataset_config.pkl", q_dataset_config)
     save_data(config.saving_dir + "mfg_flow_config.pkl", config)
 
-    #p_training, p_test = generate_toy_data(p_dataset_config, config.seed)
-    #q_training, q_test = generate_toy_data(q_dataset_config, config.seed)
+    p_training, p_test = generate_toy_data(p_dataset_config, config.seed)
+    q_training, q_test = generate_toy_data(q_dataset_config, config.seed)
 
     #outer_loop_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training, q_training), 
      #                                                     batch_size=config.outer_batch, 
@@ -55,10 +55,10 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
         loop_saving_dir = os.path.join(config.saving_dir, "loop_{}".format(i+1))
         os.makedirs(loop_saving_dir, exist_ok=True)
 
-        # generate data for training
-        p_training_loop, _ = generate_toy_data(p_dataset_config, initial_seed)
-        q_training_loop, _ = generate_toy_data(q_dataset_config, initial_seed)
-        initial_seed += 1
+        # obtain outer batch for the loop
+        rand_idx = torch.randperm(config.n_train)[:config.outer_batch]
+        p_training_loop = p_training[rand_idx]
+        q_training_loop = q_training[rand_idx]
 
         if i == 0:
 
