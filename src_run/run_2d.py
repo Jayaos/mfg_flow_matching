@@ -248,11 +248,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
                 vf_pbar.update(1)
             else:
                 break
-
-        # generate test data
-        _ , p_test = generate_toy_data(p_dataset_config, config.seed) # use same seed across loops for test
-        _ , q_test = generate_toy_data(q_dataset_config, config.seed) # use same seed across loops for test
-
+            
         # trajectory plot
         plot_2d_ode_trajectories(velocity_field, 
                                  p_test, q_test, 
