@@ -63,7 +63,7 @@ def run_mfg_flow_toy_example(config: MFGFlowToyExampleConfig, p_dataset_config, 
 
                 vf_init_optim = torch.optim.Adam(velocity_field.parameters(), 
                                                  lr=config.particle_learning_rate)
-                vf_init_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training_loop, q_training_loop), 
+                vf_init_dataloader = DataLoaderIterator(DataLoader(TensorDataset(p_training, q_training), 
                                                                    batch_size=config.vf_minibatch, 
                                                                    shuffle=True))
                 vf_init_pbar = tqdm(total=config.vf_initial_steps, 

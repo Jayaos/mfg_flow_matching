@@ -16,8 +16,8 @@ def parse_args():
     p.add_argument("--seed", type=int, default=2025)
     p.add_argument("--n_train", type=int, default=500000)
     p.add_argument("--n_test", type=int, default=20000)
-    p.add_argument("--outer_batch", type=int, default=10000)
-    p.add_argument("--outer_loop", type=int, default=100)
+    p.add_argument("--outer_batch", type=int, default=20000)
+    p.add_argument("--outer_loop", type=int, default=20)
     p.add_argument("--ode_solver", type=str, default="rk4")       
     p.add_argument("--odeint_minibatch", type=int, default=2048)               
     p.add_argument("--ode_timesteps", type=int, default=10)   
@@ -30,7 +30,7 @@ def parse_args():
     # training
     p.add_argument("--classifier_learning_rate", type=float, default=.001)
     p.add_argument("--classifier_minibatch", type=int, default=2048)
-    p.add_argument("--classifier_initial_steps", type=int, default=2000)
+    p.add_argument("--classifier_initial_steps", type=int, default=1000)
     p.add_argument("--cost_update_frequency", type=int, default=10)
     p.add_argument("--classifier_retrain_steps", type=int, default=10)
 
@@ -38,11 +38,11 @@ def parse_args():
     p.add_argument("--vf_initial_steps", type=int, default=1000)
     p.add_argument("--vf_learning_rate", type=float, default=.001)  
     p.add_argument("--vf_minibatch", type=int, default=2048)  
-    p.add_argument("--vf_steps", type=int, default=300)  
+    p.add_argument("--vf_steps", type=int, default=100)  
 
     p.add_argument("--particle_learning_rate", type=float, default=.001)  
     p.add_argument("--particle_minibatch", type=int, default=2048)
-    p.add_argument("--particle_loop", type=int, default=300)        
+    p.add_argument("--particle_loop", type=int, default=100)        
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
 
