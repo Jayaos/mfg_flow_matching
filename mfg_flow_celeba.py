@@ -19,7 +19,7 @@ def parse_args():
     p.add_argument("--test_encoded_male_dir", type=str, default="./data/test_encoded_male.pt")
     p.add_argument("--test_encoded_female_dir", type=str, default="./data/test_encoded_female.pt")
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
-    p.add_argument("--outer_batch", type=int, default=13000)
+    p.add_argument("--outer_batch", type=int, default=15000)
     p.add_argument("--outer_loop", type=int, default=100)
     p.add_argument("--ode_solver", type=str, default="rk4")       
     p.add_argument("--odeint_minibatch", type=int, default=2048)
@@ -49,7 +49,7 @@ def parse_args():
     p.add_argument("--vf_steps", type=int, default=300)  
 
     p.add_argument("--particle_learning_rate", type=float, default=.001)  
-    p.add_argument("--particle_minibatch", type=int, default=512)
+    p.add_argument("--particle_minibatch", type=int, default=1024)
     p.add_argument("--particle_loop", type=int, default=300)        
     p.add_argument("--kinetic_loss_weight", type=float, default=0.05)
     p.add_argument("--classifier_loss_weight", type=float, default=1.0)
