@@ -1,3 +1,4 @@
 __pycache__/
 *.ipynb
 src_run/run_hdgaussian.py
+src_run/run_otceleba.py
