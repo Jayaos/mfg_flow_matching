@@ -355,6 +355,7 @@ def display_multiple_images(images, rows, cols, figsize=1, titles=None, fontsize
             if index < K:
                 grid_img_gen = torchvision.utils.make_grid(images[index], nrow=1)
                 grid_img_gen = grid_img_gen.permute(1, 2, 0).detach().cpu().numpy()
+                grid_img_gen = np.clip(grid_img_gen, 0.0, 1.0) 
                 ax_now.imshow(grid_img_gen)
                 ax_now.axis('off')
                 if titles is not None and i == 0:
